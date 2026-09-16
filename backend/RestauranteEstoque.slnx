@@ -1,0 +1,20 @@
+<Solution>
+  <Folder Name="/Api/">
+    <Project Path="Api/RestauranteEstoque.Api.csproj" />
+  </Folder>
+  <Folder Name="/Application/">
+    <Project Path="Application/RestauranteEstoque.Application.csproj" />
+  </Folder>
+  <Folder Name="/Contracts/">
+    <Project Path="Contracts/RestauranteEstoque.Contracts.csproj" />
+  </Folder>
+  <Folder Name="/Domain/">
+    <Project Path="Domain/RestauranteEstoque.Domain.csproj" />
+  </Folder>
+  <Folder Name="/Infrastructure/">
+    <Project Path="Infrastructure/RestauranteEstoque.Infrastructure.csproj" />
+  </Folder>
+  <Folder Name="/Tests/">
+    <Project Path="Tests/RestauranteEstoque.Tests.csproj" />
+  </Folder>
+</Solution>

@@ -1,0 +1,24 @@
+## .NET / Visual Studio ##
+bin/
+obj/
+*.user
+.vs/
+*.suo
+
+## Node / Next.js ##
+node_modules/
+.next/
+out/
+.env
+.env.local
+.env.*.local
+npm-debug.log*
+
+## Editor ##
+.vscode/
+.idea/
+
+## OS ##
+.DS_Store
+Thumbs.db
+quero-que-voce-crie-gentle-pixel.md
