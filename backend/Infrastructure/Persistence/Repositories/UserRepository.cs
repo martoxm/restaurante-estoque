@@ -1,5 +1,5 @@
 using Microsoft.EntityFrameworkCore;
-using RestauranteEstoque.Application.Auth;
+using RestauranteEstoque.Application.Abstractions.Repositories;
 using RestauranteEstoque.Domain.Entities;
 
 namespace RestauranteEstoque.Infrastructure.Persistence.Repositories;

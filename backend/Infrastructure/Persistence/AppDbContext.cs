@@ -1,5 +1,5 @@
 using Microsoft.EntityFrameworkCore;
-using RestauranteEstoque.Application.Common.Interfaces;
+using RestauranteEstoque.Application.Abstractions.Services;
 using RestauranteEstoque.Domain.Entities;
 
 namespace RestauranteEstoque.Infrastructure.Persistence;

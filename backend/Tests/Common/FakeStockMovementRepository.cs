@@ -1,4 +1,4 @@
-using RestauranteEstoque.Application.StockMovements;
+using RestauranteEstoque.Application.Abstractions.Repositories;
 using RestauranteEstoque.Domain.Entities;
 
 namespace RestauranteEstoque.Tests.Common;

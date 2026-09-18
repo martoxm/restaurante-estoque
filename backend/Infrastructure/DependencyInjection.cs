@@ -1,12 +1,8 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using RestauranteEstoque.Application.Auth;
-using RestauranteEstoque.Application.Categories;
-using RestauranteEstoque.Application.Common.Interfaces;
-using RestauranteEstoque.Application.Products;
-using RestauranteEstoque.Application.StockMovements;
-using RestauranteEstoque.Application.Suppliers;
+using RestauranteEstoque.Application.Abstractions.Repositories;
+using RestauranteEstoque.Application.Abstractions.Services;
 using RestauranteEstoque.Infrastructure.Persistence;
 using RestauranteEstoque.Infrastructure.Persistence.Repositories;
 using RestauranteEstoque.Infrastructure.Security;

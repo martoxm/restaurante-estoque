@@ -1,10 +1,10 @@
 using Asp.Versioning;
 using MediatR;
-using RestauranteEstoque.Application.Categories.Commands.CreateCategory;
-using RestauranteEstoque.Application.Categories.Commands.DeleteCategory;
-using RestauranteEstoque.Application.Categories.Commands.UpdateCategory;
-using RestauranteEstoque.Application.Categories.Queries.GetCategories;
-using RestauranteEstoque.Application.Categories.Queries.GetCategoryById;
+using RestauranteEstoque.Application.UseCases.Categories.Commands.CreateCategory;
+using RestauranteEstoque.Application.UseCases.Categories.Commands.DeleteCategory;
+using RestauranteEstoque.Application.UseCases.Categories.Commands.UpdateCategory;
+using RestauranteEstoque.Application.UseCases.Categories.Queries.GetCategories;
+using RestauranteEstoque.Application.UseCases.Categories.Queries.GetCategoryById;
 using RestauranteEstoque.Application.Common.Models;
 using RestauranteEstoque.Contracts.Categories;
 
