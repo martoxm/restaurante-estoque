@@ -1,7 +1,7 @@
 using Asp.Versioning;
 using MediatR;
-using RestauranteEstoque.Application.Auth.Commands.Login;
-using RestauranteEstoque.Application.Auth.Commands.Register;
+using RestauranteEstoque.Application.UseCases.Auth.Commands.Login;
+using RestauranteEstoque.Application.UseCases.Auth.Commands.Register;
 using RestauranteEstoque.Contracts.Auth;
 
 namespace RestauranteEstoque.Api.Modules;

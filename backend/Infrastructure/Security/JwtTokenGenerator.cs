@@ -3,7 +3,7 @@ using System.Security.Claims;
 using System.Text;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
-using RestauranteEstoque.Application.Common.Interfaces;
+using RestauranteEstoque.Application.Abstractions.Services;
 using RestauranteEstoque.Domain.Entities;
 
 namespace RestauranteEstoque.Infrastructure.Security;
@@ -14,7 +14,7 @@ public class JwtTokenGenerator : IJwtTokenGenerator
 
     public JwtTokenGenerator(IOptions<JwtSettings> options)
     {
-        _settings = options.Value;
+        _settings = options.Value; 
     }
 
     public string GenerateToken(User user)

@@ -1,4 +1,4 @@
-using RestauranteEstoque.Application.Products.Commands.CreateProduct;
+using RestauranteEstoque.Application.UseCases.Products.Commands.CreateProduct;
 using RestauranteEstoque.Tests.Common;
 
 namespace RestauranteEstoque.Tests.Handlers;

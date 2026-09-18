@@ -1,6 +1,6 @@
 using Asp.Versioning;
 using MediatR;
-using RestauranteEstoque.Application.StockMovements.Commands.CreateStockMovement;
+using RestauranteEstoque.Application.UseCases.StockMovements.Commands.CreateStockMovement;
 using RestauranteEstoque.Contracts.StockMovements;
 
 namespace RestauranteEstoque.Api.Modules;

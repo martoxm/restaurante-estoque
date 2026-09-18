@@ -1,4 +1,4 @@
-using RestauranteEstoque.Application.Common.Interfaces;
+using RestauranteEstoque.Application.Abstractions.Services;
 
 namespace RestauranteEstoque.Tests.Common;
 
