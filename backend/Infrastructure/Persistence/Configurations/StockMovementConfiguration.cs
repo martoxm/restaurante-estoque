@@ -24,6 +24,8 @@ public class StockMovementConfiguration : IEntityTypeConfiguration<StockMovement
         builder.Property(s => s.Notes)
             .HasMaxLength(500);
 
+        builder.Property(s => s.RestaurantId);
+
         builder.HasOne(s => s.Product)
             .WithMany()
             .HasForeignKey(s => s.ProductId)

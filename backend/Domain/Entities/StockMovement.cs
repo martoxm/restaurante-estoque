@@ -12,11 +12,13 @@ public class StockMovement : Entity
     public DateTime MovementDate { get; private set; }
     public string? Notes { get; private set; }
 
+    public Guid? RestaurantId { get; private set; }
+
     private StockMovement()
     {
     }
 
-    public static StockMovement Create(Guid productId, StockMovementType type, int quantity, DateTime movementDate, string? notes = null)
+    public static StockMovement Create(Guid productId, StockMovementType type, int quantity, DateTime movementDate, string? notes = null, Guid? restaurantId = null)
     {
         ValidateProductId(productId);
         ValidateQuantity(quantity);
@@ -27,7 +29,8 @@ public class StockMovement : Entity
             Type = type,
             Quantity = quantity,
             Notes = notes?.Trim(),
-            MovementDate = movementDate
+            MovementDate = movementDate,
+            RestaurantId = restaurantId
         };
     }
 

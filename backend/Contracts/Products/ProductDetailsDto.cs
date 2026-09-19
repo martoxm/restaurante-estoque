@@ -7,4 +7,5 @@ public record ProductDetailsDto(
     decimal Price,
     int QuantityInStock,
     Guid CategoryId,
-    string CategoryName);
+    string CategoryName,
+    DateTime CreatedAt);

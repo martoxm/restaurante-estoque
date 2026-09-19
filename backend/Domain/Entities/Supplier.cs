@@ -8,11 +8,15 @@ public class Supplier : Entity
     public string? Phone { get; private set; }
     public string? Email { get; private set; }
 
+    public Guid? RestaurantId { get; private set; }
+
+    public DateTime CreatedAt { get; private set; }
+
     private Supplier()
     {
     }
 
-    public static Supplier Create(string name, string? phone = null, string? email = null)
+    public static Supplier Create(string name, DateTime createdAt, string? phone = null, string? email = null, Guid? restaurantId = null)
     {
         ValidateName(name);
 
@@ -20,7 +24,9 @@ public class Supplier : Entity
         {
             Name = name.Trim(),
             Phone = phone?.Trim(),
-            Email = email?.Trim()
+            Email = email?.Trim(),
+            RestaurantId = restaurantId,
+            CreatedAt = createdAt
         };
     }
 

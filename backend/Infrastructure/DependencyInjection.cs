@@ -43,9 +43,14 @@ public static class DependencyInjection
         services.AddScoped<ISupplierRepository, SupplierRepository>();
         services.AddScoped<IStockMovementRepository, StockMovementRepository>();
 
+        services.AddScoped<IRestaurantRepository, RestaurantRepository>();
+
         services.Configure<JwtSettings>(configuration.GetSection(JwtSettings.SectionName));
 
         services.AddScoped<IJwtTokenGenerator, JwtTokenGenerator>();
+
+        services.AddHttpContextAccessor();
+        services.AddScoped<ICurrentUserService, CurrentUserService>();
 
         services.AddSingleton(TimeProvider.System);
         services.AddSingleton<IClock, Clock>();

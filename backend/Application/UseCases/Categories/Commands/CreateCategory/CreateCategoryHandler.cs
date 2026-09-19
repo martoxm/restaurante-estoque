@@ -9,16 +9,24 @@ public class CreateCategoryHandler : IRequestHandler<CreateCategoryCommand, Guid
 {
     private readonly ICategoryRepository _categoryRepository;
     private readonly IApplicationDbContext _context;
+    private readonly ICurrentUserService _currentUserService;
+    private readonly IClock _clock;
 
-    public CreateCategoryHandler(ICategoryRepository categoryRepository, IApplicationDbContext context)
+    public CreateCategoryHandler(
+        ICategoryRepository categoryRepository,
+        IApplicationDbContext context,
+        ICurrentUserService currentUserService,
+        IClock clock)
     {
         _categoryRepository = categoryRepository;
         _context = context;
+        _currentUserService = currentUserService;
+        _clock = clock;
     }
 
     public async Task<Guid> Handle(CreateCategoryCommand request, CancellationToken cancellationToken)
     {
-        var category = Category.Create(request.Name, request.Description);
+        var category = Category.Create(request.Name, _clock.UtcNow, request.Description, _currentUserService.RestaurantId);
 
         _categoryRepository.Add(category);
         await _context.SaveChangesAsync(cancellationToken);

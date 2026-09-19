@@ -11,11 +11,15 @@ public class Product : Entity
     public Guid CategoryId { get; private set; }
     public Category? Category { get; private set; }
 
+    public Guid? RestaurantId { get; private set; }
+
+    public DateTime CreatedAt { get; private set; }
+
     private Product()
     {
     }
 
-    public static Product Create(string name, string? description, decimal price, Guid categoryId, int initialQuantity = 0)
+    public static Product Create(string name, string? description, decimal price, Guid categoryId, DateTime createdAt, int initialQuantity = 0, Guid? restaurantId = null)
     {
         ValidateName(name);
         ValidatePrice(price);
@@ -28,7 +32,9 @@ public class Product : Entity
             Description = description?.Trim(),
             Price = price,
             CategoryId = categoryId,
-            QuantityInStock = initialQuantity
+            QuantityInStock = initialQuantity,
+            RestaurantId = restaurantId,
+            CreatedAt = createdAt
         };
     }
 

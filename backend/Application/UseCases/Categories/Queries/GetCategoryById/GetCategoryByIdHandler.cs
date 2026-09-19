@@ -24,6 +24,7 @@ public class GetCategoryByIdHandler : IRequestHandler<GetCategoryByIdQuery, Cate
             category.Id,
             category.Name,
             category.Description,
-            category.Products.Count);
+            category.Products.Count,
+            category.CreatedAt);
     }
 }

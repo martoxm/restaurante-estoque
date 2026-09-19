@@ -24,6 +24,7 @@ public class GetSupplierByIdHandler : IRequestHandler<GetSupplierByIdQuery, Supp
             supplier.Id,
             supplier.Name,
             supplier.Phone,
-            supplier.Email);
+            supplier.Email,
+            supplier.CreatedAt);
     }
 }

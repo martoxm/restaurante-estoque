@@ -9,21 +9,25 @@ namespace RestauranteEstoque.Tests.Handlers;
 
 public class CreateStockMovementHandlerTests
 {
+    private static readonly DateTime CreatedAt = new(2026, 1, 1, 12, 0, 0, DateTimeKind.Utc);
+
     [Fact]
     public async Task Handle_Entrada_DeveAumentarEstoqueERegistrarMovimentacao()
     {
         using var context = TestDbContextFactory.Create();
-        var category = Category.Create("Grãos");
-        var product = Product.Create("Arroz", null, 10m, category.Id, initialQuantity: 5);
+        var category = Category.Create("Grãos", CreatedAt);
+        var product = Product.Create("Arroz", null, 10m, category.Id, CreatedAt, initialQuantity: 5);
         context.Categories.Add(category);
         context.Products.Add(product);
         await context.SaveChangesAsync();
 
+        var currentUserService = new FakeCurrentUserService();
         var handler = new CreateStockMovementHandler(
-            new FakeStockMovementRepository(context),
-            new FakeProductRepository(context),
+            new FakeStockMovementRepository(context, currentUserService),
+            new FakeProductRepository(context, currentUserService),
             context,
-            new FakeClock());
+            new FakeClock(),
+            currentUserService);
         var command = new CreateStockMovementCommand(product.Id, StockMovementType.Entrada, 3, "Compra do mês");
 
         var movementId = await handler.Handle(command, CancellationToken.None);
@@ -39,17 +43,19 @@ public class CreateStockMovementHandlerTests
     public async Task Handle_Saida_ComEstoqueSuficiente_DeveDiminuirEstoque()
     {
         using var context = TestDbContextFactory.Create();
-        var category = Category.Create("Grãos");
-        var product = Product.Create("Arroz", null, 10m, category.Id, initialQuantity: 5);
+        var category = Category.Create("Grãos", CreatedAt);
+        var product = Product.Create("Arroz", null, 10m, category.Id, CreatedAt, initialQuantity: 5);
         context.Categories.Add(category);
         context.Products.Add(product);
         await context.SaveChangesAsync();
 
+        var currentUserService = new FakeCurrentUserService();
         var handler = new CreateStockMovementHandler(
-            new FakeStockMovementRepository(context),
-            new FakeProductRepository(context),
+            new FakeStockMovementRepository(context, currentUserService),
+            new FakeProductRepository(context, currentUserService),
             context,
-            new FakeClock());
+            new FakeClock(),
+            currentUserService);
         var command = new CreateStockMovementCommand(product.Id, StockMovementType.Saida, 3);
 
         await handler.Handle(command, CancellationToken.None);
@@ -62,17 +68,19 @@ public class CreateStockMovementHandlerTests
     public async Task Handle_Saida_ComEstoqueInsuficiente_DeveLancarDomainException()
     {
         using var context = TestDbContextFactory.Create();
-        var category = Category.Create("Grãos");
-        var product = Product.Create("Arroz", null, 10m, category.Id, initialQuantity: 5);
+        var category = Category.Create("Grãos", CreatedAt);
+        var product = Product.Create("Arroz", null, 10m, category.Id, CreatedAt, initialQuantity: 5);
         context.Categories.Add(category);
         context.Products.Add(product);
         await context.SaveChangesAsync();
 
+        var currentUserService = new FakeCurrentUserService();
         var handler = new CreateStockMovementHandler(
-            new FakeStockMovementRepository(context),
-            new FakeProductRepository(context),
+            new FakeStockMovementRepository(context, currentUserService),
+            new FakeProductRepository(context, currentUserService),
             context,
-            new FakeClock());
+            new FakeClock(),
+            currentUserService);
         var command = new CreateStockMovementCommand(product.Id, StockMovementType.Saida, 100);
 
         await Assert.ThrowsAsync<DomainException>(() => handler.Handle(command, CancellationToken.None));
@@ -82,11 +90,13 @@ public class CreateStockMovementHandlerTests
     public async Task Handle_ComProdutoInexistente_DeveLancarNotFoundException()
     {
         using var context = TestDbContextFactory.Create();
+        var currentUserService = new FakeCurrentUserService();
         var handler = new CreateStockMovementHandler(
-            new FakeStockMovementRepository(context),
-            new FakeProductRepository(context),
+            new FakeStockMovementRepository(context, currentUserService),
+            new FakeProductRepository(context, currentUserService),
             context,
-            new FakeClock());
+            new FakeClock(),
+            currentUserService);
         var command = new CreateStockMovementCommand(Guid.NewGuid(), StockMovementType.Entrada, 10);
 
         await Assert.ThrowsAsync<NotFoundException>(() => handler.Handle(command, CancellationToken.None));

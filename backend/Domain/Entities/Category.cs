@@ -10,18 +10,24 @@ public class Category : Entity
     private readonly List<Product> _products = new();
     public IReadOnlyCollection<Product> Products => _products.AsReadOnly();
 
+    public Guid? RestaurantId { get; private set; }
+
+    public DateTime CreatedAt { get; private set; }
+
     private Category()
     {
     }
 
-    public static Category Create(string name, string? description = null)
+    public static Category Create(string name, DateTime createdAt, string? description = null, Guid? restaurantId = null)
     {
         ValidateName(name);
 
         return new Category
         {
             Name = name.Trim(),
-            Description = description?.Trim()
+            Description = description?.Trim(),
+            RestaurantId = restaurantId,
+            CreatedAt = createdAt
         };
     }
 

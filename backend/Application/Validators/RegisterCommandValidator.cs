@@ -22,6 +22,10 @@ public class RegisterCommandValidator : AbstractValidator<RegisterCommand>
 
         RuleFor(command => command.Password)
             .NotEmpty().WithMessage("A senha é obrigatória.");
+
+        RuleFor(command => command.RestaurantName)
+            .NotEmpty().WithMessage("O nome do restaurante é obrigatório.")
+            .MaximumLength(150).WithMessage("O nome do restaurante deve ter no máximo 150 caracteres.");
     }
 
     private async Task<bool> BeUniqueEmail(string email, CancellationToken cancellationToken)

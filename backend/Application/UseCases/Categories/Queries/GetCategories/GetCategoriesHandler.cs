@@ -28,7 +28,8 @@ public class GetCategoriesHandler : IRequestHandler<GetCategoriesQuery, PagedRes
                 category.Id,
                 category.Name,
                 category.Description,
-                category.Products.Count))
+                category.Products.Count,
+                category.CreatedAt))
             .ToList();
 
         return new PagedResult<CategoryListItemDto>(items, request.Page, request.PageSize, totalCount);

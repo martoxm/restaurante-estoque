@@ -125,7 +125,8 @@ IEndpointModule[] endpointModules =
     new CategoryEndpointsModule(),
     new SupplierEndpointsModule(),
     new StockMovementEndpointsModule(),
-    new AuthEndpointsModule()
+    new AuthEndpointsModule(),
+    new RestaurantEndpointsModule()
 ];
 
 foreach (var module in endpointModules)
