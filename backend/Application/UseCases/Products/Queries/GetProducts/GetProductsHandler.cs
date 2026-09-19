@@ -32,7 +32,8 @@ public class GetProductsHandler : IRequestHandler<GetProductsQuery, PagedResult<
                 product.Price,
                 product.QuantityInStock,
                 product.CategoryId,
-                product.Category!.Name))
+                product.Category!.Name,
+                product.CreatedAt))
             .ToList();
 
         return new PagedResult<ProductListItemDto>(items, request.Page, request.PageSize, totalCount);

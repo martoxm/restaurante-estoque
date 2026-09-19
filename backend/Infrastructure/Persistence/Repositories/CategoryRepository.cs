@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using RestauranteEstoque.Application.Abstractions.Repositories;
+using RestauranteEstoque.Application.Abstractions.Services;
 using RestauranteEstoque.Contracts.Common;
 using RestauranteEstoque.Domain.Entities;
 
@@ -8,16 +9,19 @@ namespace RestauranteEstoque.Infrastructure.Persistence.Repositories;
 public class CategoryRepository : ICategoryRepository
 {
     private readonly AppDbContext _context;
+    private readonly ICurrentUserService _currentUserService;
 
-    public CategoryRepository(AppDbContext context)
+    public CategoryRepository(AppDbContext context, ICurrentUserService currentUserService)
     {
         _context = context;
+        _currentUserService = currentUserService;
     }
 
     public async Task<Category?> GetByIdAsync(Guid id, CancellationToken cancellationToken)
     {
         return await _context.Categories
             .Include(category => category.Products)
+            .Where(category => category.RestaurantId == _currentUserService.RestaurantId)
             .FirstOrDefaultAsync(category => category.Id == id, cancellationToken);
     }
 
@@ -30,7 +34,7 @@ public class CategoryRepository : ICategoryRepository
     {
         var query = _context.Categories
             .Include(category => category.Products)
-            .AsQueryable();
+            .Where(category => category.RestaurantId == _currentUserService.RestaurantId);
 
         if (!string.IsNullOrWhiteSpace(name))
             query = query.Where(category => category.Name.Contains(name));

@@ -21,5 +21,10 @@ public class SupplierConfiguration : IEntityTypeConfiguration<Supplier>
 
         builder.Property(s => s.Email)
             .HasMaxLength(200);
+
+        builder.Property(s => s.RestaurantId);
+
+        builder.Property(s => s.CreatedAt)
+            .IsRequired();
     }
 }

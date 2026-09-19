@@ -19,6 +19,11 @@ public class CategoryConfiguration : IEntityTypeConfiguration<Category>
         builder.Property(c => c.Description)
             .HasMaxLength(500);
 
+        builder.Property(c => c.RestaurantId);
+
+        builder.Property(c => c.CreatedAt)
+            .IsRequired();
+
         builder.Navigation(c => c.Products)
             .UsePropertyAccessMode(PropertyAccessMode.Field);
     }

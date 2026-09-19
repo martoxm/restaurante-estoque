@@ -5,13 +5,16 @@ namespace RestauranteEstoque.Tests.Domain;
 
 public class CategoryTests
 {
+    private static readonly DateTime CreatedAt = new(2026, 1, 1, 12, 0, 0, DateTimeKind.Utc);
+
     [Fact]
     public void Create_ComNomeValido_DeveCriarCategoria()
     {
-        var category = Category.Create("Bebidas", "Bebidas em geral");
+        var category = Category.Create("Bebidas", CreatedAt, "Bebidas em geral");
 
         Assert.Equal("Bebidas", category.Name);
         Assert.Equal("Bebidas em geral", category.Description);
+        Assert.Equal(CreatedAt, category.CreatedAt);
     }
 
     [Theory]
@@ -20,7 +23,7 @@ public class CategoryTests
     [InlineData(null)]
     public void Create_ComNomeInvalido_DeveLancarDomainException(string? nomeInvalido)
     {
-        Assert.Throws<DomainException>(() => Category.Create(nomeInvalido!));
+        Assert.Throws<DomainException>(() => Category.Create(nomeInvalido!, CreatedAt));
     }
 
     [Fact]
@@ -28,13 +31,13 @@ public class CategoryTests
     {
         var nomeMuitoLongo = new string('A', 101);
 
-        Assert.Throws<DomainException>(() => Category.Create(nomeMuitoLongo));
+        Assert.Throws<DomainException>(() => Category.Create(nomeMuitoLongo, CreatedAt));
     }
 
     [Fact]
     public void Update_ComDadosValidos_DeveAtualizarNomeEDescricao()
     {
-        var category = Category.Create("Bebidas");
+        var category = Category.Create("Bebidas", CreatedAt);
 
         category.Update("Bebidas Geladas", "Cervejas e refrigerantes");
 

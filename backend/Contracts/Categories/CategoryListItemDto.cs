@@ -4,4 +4,5 @@ public record CategoryListItemDto(
     Guid Id,
     string Name,
     string? Description,
-    int ProductCount);
+    int ProductCount,
+    DateTime CreatedAt);

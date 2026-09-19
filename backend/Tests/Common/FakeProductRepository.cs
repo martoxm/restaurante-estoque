@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using RestauranteEstoque.Application.Abstractions.Repositories;
+using RestauranteEstoque.Application.Abstractions.Services;
 using RestauranteEstoque.Contracts.Common;
 using RestauranteEstoque.Contracts.Products;
 using RestauranteEstoque.Domain.Entities;
@@ -9,16 +10,19 @@ namespace RestauranteEstoque.Tests.Common;
 public class FakeProductRepository : IProductRepository
 {
     private readonly TestDbContext _context;
+    private readonly ICurrentUserService _currentUserService;
 
-    public FakeProductRepository(TestDbContext context)
+    public FakeProductRepository(TestDbContext context, ICurrentUserService currentUserService)
     {
         _context = context;
+        _currentUserService = currentUserService;
     }
 
     public async Task<Product?> GetByIdAsync(Guid id, CancellationToken cancellationToken)
     {
         return await _context.Products
             .Include(product => product.Category)
+            .Where(product => product.RestaurantId == _currentUserService.RestaurantId)
             .FirstOrDefaultAsync(product => product.Id == id, cancellationToken);
     }
 
@@ -33,7 +37,7 @@ public class FakeProductRepository : IProductRepository
     {
         var query = _context.Products
             .Include(product => product.Category)
-            .AsQueryable();
+            .Where(product => product.RestaurantId == _currentUserService.RestaurantId);
 
         if (!string.IsNullOrWhiteSpace(name))
             query = query.Where(product => product.Name.Contains(name));

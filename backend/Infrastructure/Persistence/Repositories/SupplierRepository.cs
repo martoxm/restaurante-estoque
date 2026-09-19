@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using RestauranteEstoque.Application.Abstractions.Repositories;
+using RestauranteEstoque.Application.Abstractions.Services;
 using RestauranteEstoque.Contracts.Common;
 using RestauranteEstoque.Domain.Entities;
 
@@ -8,15 +9,18 @@ namespace RestauranteEstoque.Infrastructure.Persistence.Repositories;
 public class SupplierRepository : ISupplierRepository
 {
     private readonly AppDbContext _context;
+    private readonly ICurrentUserService _currentUserService;
 
-    public SupplierRepository(AppDbContext context)
+    public SupplierRepository(AppDbContext context, ICurrentUserService currentUserService)
     {
         _context = context;
+        _currentUserService = currentUserService;
     }
 
     public async Task<Supplier?> GetByIdAsync(Guid id, CancellationToken cancellationToken)
     {
         return await _context.Suppliers
+            .Where(supplier => supplier.RestaurantId == _currentUserService.RestaurantId)
             .FirstOrDefaultAsync(supplier => supplier.Id == id, cancellationToken);
     }
 
@@ -27,7 +31,8 @@ public class SupplierRepository : ISupplierRepository
         SortDirection sortDirection,
         CancellationToken cancellationToken)
     {
-        var query = _context.Suppliers.AsQueryable();
+        var query = _context.Suppliers
+            .Where(supplier => supplier.RestaurantId == _currentUserService.RestaurantId);
 
         if (!string.IsNullOrWhiteSpace(name))
             query = query.Where(supplier => supplier.Name.Contains(name));

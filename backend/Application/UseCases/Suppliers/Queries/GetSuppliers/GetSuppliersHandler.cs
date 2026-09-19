@@ -28,7 +28,8 @@ public class GetSuppliersHandler : IRequestHandler<GetSuppliersQuery, PagedResul
                 supplier.Id,
                 supplier.Name,
                 supplier.Phone,
-                supplier.Email))
+                supplier.Email,
+                supplier.CreatedAt))
             .ToList();
 
         return new PagedResult<SupplierListItemDto>(items, request.Page, request.PageSize, totalCount);

@@ -26,7 +26,7 @@ public class LoginHandler : IRequestHandler<LoginCommand, LoginResponse>
             throw new InvalidCredentialsException();
 
         var roles = await _identityService.GetRolesAsync(user.Id, cancellationToken);
-        var token = _jwtTokenGenerator.GenerateToken(user.Id, user.Name, user.Email, roles);
+        var token = _jwtTokenGenerator.GenerateToken(user.Id, user.Name, user.Email, roles, user.RestaurantId);
 
         return new LoginResponse(token, user.Name, user.Email);
     }

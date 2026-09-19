@@ -9,11 +9,19 @@ public class CreateProductHandler : IRequestHandler<CreateProductCommand, Guid>
 {
     private readonly IProductRepository _productRepository;
     private readonly IApplicationDbContext _context;
+    private readonly ICurrentUserService _currentUserService;
+    private readonly IClock _clock;
 
-    public CreateProductHandler(IProductRepository productRepository, IApplicationDbContext context)
+    public CreateProductHandler(
+        IProductRepository productRepository,
+        IApplicationDbContext context,
+        ICurrentUserService currentUserService,
+        IClock clock)
     {
         _productRepository = productRepository;
         _context = context;
+        _currentUserService = currentUserService;
+        _clock = clock;
     }
 
     public async Task<Guid> Handle(CreateProductCommand request, CancellationToken cancellationToken)
@@ -23,7 +31,9 @@ public class CreateProductHandler : IRequestHandler<CreateProductCommand, Guid>
             request.Description,
             request.Price,
             request.CategoryId,
-            request.InitialQuantity);
+            _clock.UtcNow,
+            request.InitialQuantity,
+            _currentUserService.RestaurantId);
 
         _productRepository.Add(product);
         await _context.SaveChangesAsync(cancellationToken);

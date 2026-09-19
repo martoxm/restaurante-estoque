@@ -4,4 +4,5 @@ public record SupplierListItemDto(
     Guid Id,
     string Name,
     string? Phone,
-    string? Email);
+    string? Email,
+    DateTime CreatedAt);

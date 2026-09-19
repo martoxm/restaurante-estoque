@@ -25,6 +25,10 @@ public class ProductConfiguration : IEntityTypeConfiguration<Product>
         builder.Property(p => p.QuantityInStock)
             .IsRequired();
 
+        builder.Property(p => p.RestaurantId);
+
+        builder.Property(p => p.CreatedAt)
+            .IsRequired();
 
         builder.HasOne(p => p.Category)
             .WithMany(c => c.Products)

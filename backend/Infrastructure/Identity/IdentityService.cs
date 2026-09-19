@@ -21,14 +21,15 @@ public class IdentityService : IIdentityService
         return user is not null;
     }
 
-    public async Task<Guid> CreateUserAsync(string name, string email, string password, CancellationToken cancellationToken)
+    public async Task<Guid> CreateUserAsync(string name, string email, string password, Guid restaurantId, CancellationToken cancellationToken)
     {
         var user = new ApplicationUser
         {
             Id = Guid.NewGuid(),
             UserName = email,
             Email = email,
-            Name = name
+            Name = name,
+            RestaurantId = restaurantId
         };
 
         var result = await _userManager.CreateAsync(user, password);
@@ -53,7 +54,7 @@ public class IdentityService : IIdentityService
         if (user is null || !await _userManager.CheckPasswordAsync(user, password))
             return null;
 
-        return new AuthenticatedUser(user.Id, user.Name, user.Email!);
+        return new AuthenticatedUser(user.Id, user.Name, user.Email!, user.RestaurantId);
     }
 
     public async Task<IReadOnlyList<string>> GetRolesAsync(Guid userId, CancellationToken cancellationToken)

@@ -16,7 +16,7 @@ public class JwtTokenGenerator : IJwtTokenGenerator
         _settings = options.Value;
     }
 
-    public string GenerateToken(Guid userId, string name, string email, IEnumerable<string> roles)
+    public string GenerateToken(Guid userId, string name, string email, IEnumerable<string> roles, Guid? restaurantId)
     {
         var claims = new List<Claim>
         {
@@ -27,6 +27,11 @@ public class JwtTokenGenerator : IJwtTokenGenerator
         };
 
         claims.AddRange(roles.Select(role => new Claim(ClaimTypes.Role, role)));
+
+        if (restaurantId.HasValue)
+        {
+            claims.Add(new Claim(CurrentUserService.RestaurantIdClaimType, restaurantId.Value.ToString()));
+        }
 
         var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_settings.Secret));
         var credentials = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);

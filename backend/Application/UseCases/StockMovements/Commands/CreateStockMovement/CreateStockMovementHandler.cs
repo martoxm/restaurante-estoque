@@ -13,17 +13,20 @@ public class CreateStockMovementHandler : IRequestHandler<CreateStockMovementCom
     private readonly IProductRepository _productRepository;
     private readonly IApplicationDbContext _context;
     private readonly IClock _clock;
+    private readonly ICurrentUserService _currentUserService;
 
     public CreateStockMovementHandler(
         IStockMovementRepository stockMovementRepository,
         IProductRepository productRepository,
         IApplicationDbContext context,
-        IClock clock)
+        IClock clock,
+        ICurrentUserService currentUserService)
     {
         _stockMovementRepository = stockMovementRepository;
         _productRepository = productRepository;
         _context = context;
         _clock = clock;
+        _currentUserService = currentUserService;
     }
 
     public async Task<Guid> Handle(CreateStockMovementCommand request, CancellationToken cancellationToken)
@@ -33,7 +36,13 @@ public class CreateStockMovementHandler : IRequestHandler<CreateStockMovementCom
         if (product is null)
             throw new NotFoundException($"Produto com Id '{request.ProductId}' não foi encontrado.");
 
-        var movement = StockMovement.Create(request.ProductId, request.Type, request.Quantity, _clock.UtcNow, request.Notes);
+        var movement = StockMovement.Create(
+            request.ProductId,
+            request.Type,
+            request.Quantity,
+            _clock.UtcNow,
+            request.Notes,
+            _currentUserService.RestaurantId);
 
         if (request.Type == StockMovementType.Entrada)
             product.IncreaseStock(request.Quantity);
