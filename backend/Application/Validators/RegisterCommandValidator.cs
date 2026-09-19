@@ -1,16 +1,16 @@
 using FluentValidation;
-using RestauranteEstoque.Application.Abstractions.Repositories;
+using RestauranteEstoque.Application.Abstractions.Services;
 using RestauranteEstoque.Application.UseCases.Auth.Commands.Register;
 
 namespace RestauranteEstoque.Application.Validators;
 
 public class RegisterCommandValidator : AbstractValidator<RegisterCommand>
 {
-    private readonly IUserRepository _userRepository;
+    private readonly IIdentityService _identityService;
 
-    public RegisterCommandValidator(IUserRepository userRepository)
+    public RegisterCommandValidator(IIdentityService identityService)
     {
-        _userRepository = userRepository;
+        _identityService = identityService;
 
         RuleFor(command => command.Name)
             .NotEmpty().WithMessage("O nome é obrigatório.");
@@ -26,7 +26,7 @@ public class RegisterCommandValidator : AbstractValidator<RegisterCommand>
 
     private async Task<bool> BeUniqueEmail(string email, CancellationToken cancellationToken)
     {
-        var user = await _userRepository.GetByEmailAsync(email.Trim().ToLowerInvariant(), cancellationToken);
-        return user is null;
+        var exists = await _identityService.EmailExistsAsync(email.Trim().ToLowerInvariant(), cancellationToken);
+        return !exists;
     }
 }

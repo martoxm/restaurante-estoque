@@ -4,7 +4,6 @@ using System.Text;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using RestauranteEstoque.Application.Abstractions.Services;
-using RestauranteEstoque.Domain.Entities;
 
 namespace RestauranteEstoque.Infrastructure.Security;
 
@@ -14,18 +13,20 @@ public class JwtTokenGenerator : IJwtTokenGenerator
 
     public JwtTokenGenerator(IOptions<JwtSettings> options)
     {
-        _settings = options.Value; 
+        _settings = options.Value;
     }
 
-    public string GenerateToken(User user)
+    public string GenerateToken(Guid userId, string name, string email, IEnumerable<string> roles)
     {
-        var claims = new[]
+        var claims = new List<Claim>
         {
-            new Claim(JwtRegisteredClaimNames.Sub, user.Id.ToString()),
-            new Claim(JwtRegisteredClaimNames.Email, user.Email),
-            new Claim(ClaimTypes.Name, user.Name),
+            new Claim(JwtRegisteredClaimNames.Sub, userId.ToString()),
+            new Claim(JwtRegisteredClaimNames.Email, email),
+            new Claim(ClaimTypes.Name, name),
             new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
         };
+
+        claims.AddRange(roles.Select(role => new Claim(ClaimTypes.Role, role)));
 
         var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_settings.Secret));
         var credentials = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);

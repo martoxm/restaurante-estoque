@@ -14,7 +14,6 @@ public class TestDbContext : DbContext, IApplicationDbContext
     public DbSet<Product> Products => Set<Product>();
     public DbSet<StockMovement> StockMovements => Set<StockMovement>();
     public DbSet<Supplier> Suppliers => Set<Supplier>();
-    public DbSet<User> Users => Set<User>();
 }
 
 public static class TestDbContextFactory

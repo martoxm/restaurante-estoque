@@ -61,6 +61,11 @@ public class ProductRepository : IProductRepository
         _context.Entry(product).State = EntityState.Modified;
     }
 
+    public void Remove(Product product)
+    {
+        _context.Products.Remove(product);
+    }
+
     private static IQueryable<Product> ApplySort(IQueryable<Product> query, ProductSortBy sortBy, SortDirection sortDirection)
     {
         return (sortBy, sortDirection) switch

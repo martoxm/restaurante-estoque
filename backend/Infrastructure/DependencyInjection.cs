@@ -1,8 +1,10 @@
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using RestauranteEstoque.Application.Abstractions.Repositories;
 using RestauranteEstoque.Application.Abstractions.Services;
+using RestauranteEstoque.Infrastructure.Identity;
 using RestauranteEstoque.Infrastructure.Persistence;
 using RestauranteEstoque.Infrastructure.Persistence.Repositories;
 using RestauranteEstoque.Infrastructure.Security;
@@ -23,15 +25,26 @@ public static class DependencyInjection
         services.AddScoped<IApplicationDbContext>(provider =>
             provider.GetRequiredService<AppDbContext>());
 
+        services.AddIdentityCore<ApplicationUser>(options =>
+            {
+                options.Password.RequireDigit = false;
+                options.Password.RequireUppercase = false;
+                options.Password.RequireNonAlphanumeric = false;
+                options.Password.RequiredLength = 6;
+            })
+            .AddRoles<ApplicationRole>()
+            .AddEntityFrameworkStores<AppDbContext>()
+            .AddDefaultTokenProviders();
+
+        services.AddScoped<IIdentityService, IdentityService>();
+
         services.AddScoped<IProductRepository, ProductRepository>();
         services.AddScoped<ICategoryRepository, CategoryRepository>();
         services.AddScoped<ISupplierRepository, SupplierRepository>();
         services.AddScoped<IStockMovementRepository, StockMovementRepository>();
-        services.AddScoped<IUserRepository, UserRepository>();
 
         services.Configure<JwtSettings>(configuration.GetSection(JwtSettings.SectionName));
 
-        services.AddScoped<IPasswordHasher, BCryptPasswordHasher>();
         services.AddScoped<IJwtTokenGenerator, JwtTokenGenerator>();
 
         services.AddSingleton(TimeProvider.System);

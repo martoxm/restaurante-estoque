@@ -18,6 +18,10 @@ npm-debug.log*
 .vscode/
 .idea/
 
+## Visual Studio upgrade automático de solution (Backup/relatório, não é pra versionar) ##
+Backup/
+UpgradeLog.htm
+
 ## OS ##
 .DS_Store
 Thumbs.db

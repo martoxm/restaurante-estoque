@@ -1,5 +1,4 @@
 using MediatR;
-using RestauranteEstoque.Application.Abstractions.Repositories;
 using RestauranteEstoque.Application.Abstractions.Services;
 using RestauranteEstoque.Application.Common.Exceptions;
 using RestauranteEstoque.Contracts.Auth;
@@ -8,17 +7,12 @@ namespace RestauranteEstoque.Application.UseCases.Auth.Commands.Login;
 
 public class LoginHandler : IRequestHandler<LoginCommand, LoginResponse>
 {
-    private readonly IUserRepository _userRepository;
-    private readonly IPasswordHasher _passwordHasher;
+    private readonly IIdentityService _identityService;
     private readonly IJwtTokenGenerator _jwtTokenGenerator;
 
-    public LoginHandler(
-        IUserRepository userRepository,
-        IPasswordHasher passwordHasher,
-        IJwtTokenGenerator jwtTokenGenerator)
+    public LoginHandler(IIdentityService identityService, IJwtTokenGenerator jwtTokenGenerator)
     {
-        _userRepository = userRepository;
-        _passwordHasher = passwordHasher;
+        _identityService = identityService;
         _jwtTokenGenerator = jwtTokenGenerator;
     }
 
@@ -26,12 +20,13 @@ public class LoginHandler : IRequestHandler<LoginCommand, LoginResponse>
     {
         var email = request.Email.Trim().ToLowerInvariant();
 
-        var user = await _userRepository.GetByEmailAsync(email, cancellationToken);
+        var user = await _identityService.ValidateCredentialsAsync(email, request.Password, cancellationToken);
 
-        if (user is null || !_passwordHasher.Verify(request.Password, user.PasswordHash))
+        if (user is null)
             throw new InvalidCredentialsException();
 
-        var token = _jwtTokenGenerator.GenerateToken(user);
+        var roles = await _identityService.GetRolesAsync(user.Id, cancellationToken);
+        var token = _jwtTokenGenerator.GenerateToken(user.Id, user.Name, user.Email, roles);
 
         return new LoginResponse(token, user.Name, user.Email);
     }

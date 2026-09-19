@@ -6,10 +6,18 @@
     <ProjectReference Include="..\Contracts\RestauranteEstoque.Contracts.csproj" />
   </ItemGroup>
 
+  <!-- FrameworkReference: o Infrastructure é uma class library comum (Microsoft.NET.Sdk),
+       não um projeto Web — então, ao contrário da Api, ele não ganha de graça o acesso ao
+       shared framework ASP.NET Core. Precisamos disso porque parte do Identity (ex.:
+       AddDefaultTokenProviders, SignInManager) só existe nesse shared framework, não no
+       pacote NuGet Microsoft.AspNetCore.Identity.EntityFrameworkCore instalado acima. -->
   <ItemGroup>
-    <PackageReference Include="BCrypt.Net-Next" Version="4.2.0" />
+    <FrameworkReference Include="Microsoft.AspNetCore.App" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="10.0.12" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="10.0.12" />
-    <PackageReference Include="Microsoft.Extensions.Options.ConfigurationExtensions" Version="10.0.12" />
     <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="8.22.0" />
   </ItemGroup>
 
