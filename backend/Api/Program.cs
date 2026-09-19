@@ -2,12 +2,15 @@ using System.Text;
 using System.Text.Json.Serialization;
 using Asp.Versioning;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi;
 using RestauranteEstoque.Api.Middleware;
 using RestauranteEstoque.Api.Modules;
 using RestauranteEstoque.Application;
+using RestauranteEstoque.Contracts.Auth;
 using RestauranteEstoque.Infrastructure;
+using RestauranteEstoque.Infrastructure.Identity;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -86,6 +89,20 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
 builder.Services.AddAuthorization();
 
 var app = builder.Build();
+
+using (var scope = app.Services.CreateScope())
+{
+    var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<ApplicationRole>>();
+    string[] roleNames = [RoleNames.Admin, RoleNames.Funcionario];
+
+    foreach (var roleName in roleNames)
+    {
+        if (!await roleManager.RoleExistsAsync(roleName))
+        {
+            await roleManager.CreateAsync(new ApplicationRole { Name = roleName });
+        }
+    }
+}
 
 if (app.Environment.IsDevelopment())
 {

@@ -44,3 +44,7 @@ export async function updateProduct(
 ): Promise<void> {
   await api.put(`/products/${id}`, data);
 }
+
+export async function deleteProduct(id: string): Promise<void> {
+  await api.delete(`/products/${id}`);
+}

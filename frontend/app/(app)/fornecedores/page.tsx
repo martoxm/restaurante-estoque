@@ -3,6 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { isAxiosError } from "axios";
+import { useCurrentUser } from "@/hooks/useCurrentUser";
 import { useSuppliers } from "@/hooks/useSuppliers";
 import { useDeleteSupplier } from "@/hooks/useDeleteSupplier";
 import { Button } from "@/components/ui/button";
@@ -17,6 +18,7 @@ import {
 
 export default function FornecedoresPage() {
   const { data, isLoading, isError } = useSuppliers();
+  const { isAdmin } = useCurrentUser();
   const deleteSupplierMutation = useDeleteSupplier();
 
   const [deleteError, setDeleteError] = useState<string | null>(null);
@@ -27,6 +29,13 @@ export default function FornecedoresPage() {
     setDeleteError(null);
     deleteSupplierMutation.mutate(id, {
       onError: (error) => {
+        if (isAxiosError(error) && error.response?.status === 403) {
+          setDeleteError(
+            "Você não tem permissão para excluir fornecedores — essa ação é restrita a administradores."
+          );
+          return;
+        }
+
         const detail = isAxiosError<{ detail?: string }>(error)
           ? error.response?.data?.detail
           : undefined;
@@ -87,21 +96,29 @@ export default function FornecedoresPage() {
                 <TableCell>{supplier.phone || "—"}</TableCell>
                 <TableCell>{supplier.email || "—"}</TableCell>
                 <TableCell>
-                  <div className="flex justify-end gap-2">
-                    <Button variant="outline" size="sm" asChild>
-                      <Link href={`/fornecedores/${supplier.id}/editar`}>
-                        Editar
-                      </Link>
-                    </Button>
-                    <Button
-                      variant="destructive"
-                      size="sm"
-                      disabled={deleteSupplierMutation.isPending}
-                      onClick={() => handleDelete(supplier.id, supplier.name)}
-                    >
-                      Excluir
-                    </Button>
-                  </div>
+                  {isAdmin ? (
+                    <div className="flex justify-end gap-2">
+                      <Button variant="outline" size="sm" asChild>
+                        <Link href={`/fornecedores/${supplier.id}/editar`}>
+                          Editar
+                        </Link>
+                      </Button>
+                      <Button
+                        variant="destructive"
+                        size="sm"
+                        disabled={deleteSupplierMutation.isPending}
+                        onClick={() =>
+                          handleDelete(supplier.id, supplier.name)
+                        }
+                      >
+                        Excluir
+                      </Button>
+                    </div>
+                  ) : (
+                    <p className="text-right text-sm text-muted-foreground">
+                      —
+                    </p>
+                  )}
                 </TableCell>
               </TableRow>
             ))}

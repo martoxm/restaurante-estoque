@@ -6,6 +6,7 @@ using RestauranteEstoque.Application.UseCases.Suppliers.Commands.DeleteSupplier;
 using RestauranteEstoque.Application.UseCases.Suppliers.Commands.UpdateSupplier;
 using RestauranteEstoque.Application.UseCases.Suppliers.Queries.GetSupplierById;
 using RestauranteEstoque.Application.UseCases.Suppliers.Queries.GetSuppliers;
+using RestauranteEstoque.Contracts.Auth;
 using RestauranteEstoque.Contracts.Suppliers;
 
 namespace RestauranteEstoque.Api.Modules;
@@ -46,16 +47,20 @@ public class SupplierEndpointsModule : IEndpointModule
         group.MapPut("/{id:guid}", UpdateSupplier)
             .WithName("UpdateSupplier")
             .WithSummary("Atualiza um fornecedor existente")
-            .WithDescription("Atualiza o nome, telefone e e-mail de um fornecedor. Retorna 404 se ele não existir.")
+            .WithDescription("Atualiza o nome, telefone e e-mail de um fornecedor. Requer a role Admin. Retorna 404 se ele não existir.")
+            .RequireAuthorization(policy => policy.RequireRole(RoleNames.Admin))
             .Produces(StatusCodes.Status204NoContent)
             .Produces(StatusCodes.Status400BadRequest)
+            .Produces(StatusCodes.Status403Forbidden)
             .Produces(StatusCodes.Status404NotFound);
 
         group.MapDelete("/{id:guid}", DeleteSupplier)
             .WithName("DeleteSupplier")
             .WithSummary("Exclui um fornecedor")
-            .WithDescription("Exclui um fornecedor. Retorna 404 se ele não existir.")
+            .WithDescription("Exclui um fornecedor. Requer a role Admin. Retorna 404 se ele não existir.")
+            .RequireAuthorization(policy => policy.RequireRole(RoleNames.Admin))
             .Produces(StatusCodes.Status204NoContent)
+            .Produces(StatusCodes.Status403Forbidden)
             .Produces(StatusCodes.Status404NotFound);
 
         return app;

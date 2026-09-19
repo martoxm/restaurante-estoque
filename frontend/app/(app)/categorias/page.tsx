@@ -4,6 +4,7 @@ import { useState } from "react";
 import Link from "next/link";
 import { isAxiosError } from "axios";
 import { useCategories } from "@/hooks/useCategories";
+import { useCurrentUser } from "@/hooks/useCurrentUser";
 import { useDeleteCategory } from "@/hooks/useDeleteCategory";
 import { Button } from "@/components/ui/button";
 import {
@@ -17,6 +18,7 @@ import {
 
 export default function CategoriasPage() {
   const { data, isLoading, isError } = useCategories();
+  const { isAdmin } = useCurrentUser();
   const deleteCategoryMutation = useDeleteCategory();
 
   const [deleteError, setDeleteError] = useState<string | null>(null);
@@ -27,6 +29,13 @@ export default function CategoriasPage() {
     setDeleteError(null);
     deleteCategoryMutation.mutate(id, {
       onError: (error) => {
+        if (isAxiosError(error) && error.response?.status === 403) {
+          setDeleteError(
+            "Você não tem permissão para excluir categorias — essa ação é restrita a administradores."
+          );
+          return;
+        }
+
         const detail = isAxiosError<{ detail?: string }>(error)
           ? error.response?.data?.detail
           : undefined;
@@ -87,21 +96,29 @@ export default function CategoriasPage() {
                 <TableCell>{category.description || "—"}</TableCell>
                 <TableCell>{category.productCount}</TableCell>
                 <TableCell>
-                  <div className="flex justify-end gap-2">
-                    <Button variant="outline" size="sm" asChild>
-                      <Link href={`/categorias/${category.id}/editar`}>
-                        Editar
-                      </Link>
-                    </Button>
-                    <Button
-                      variant="destructive"
-                      size="sm"
-                      disabled={deleteCategoryMutation.isPending}
-                      onClick={() => handleDelete(category.id, category.name)}
-                    >
-                      Excluir
-                    </Button>
-                  </div>
+                  {isAdmin ? (
+                    <div className="flex justify-end gap-2">
+                      <Button variant="outline" size="sm" asChild>
+                        <Link href={`/categorias/${category.id}/editar`}>
+                          Editar
+                        </Link>
+                      </Button>
+                      <Button
+                        variant="destructive"
+                        size="sm"
+                        disabled={deleteCategoryMutation.isPending}
+                        onClick={() =>
+                          handleDelete(category.id, category.name)
+                        }
+                      >
+                        Excluir
+                      </Button>
+                    </div>
+                  ) : (
+                    <p className="text-right text-sm text-muted-foreground">
+                      —
+                    </p>
+                  )}
                 </TableCell>
               </TableRow>
             ))}

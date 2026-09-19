@@ -1,7 +1,11 @@
 "use client";
 
+import { useState } from "react";
 import Link from "next/link";
+import { isAxiosError } from "axios";
 import { useProducts } from "@/hooks/useProducts";
+import { useCurrentUser } from "@/hooks/useCurrentUser";
+import { useDeleteProduct } from "@/hooks/useDeleteProduct";
 import { Button } from "@/components/ui/button";
 import {
   Table,
@@ -19,6 +23,31 @@ const currencyFormatter = new Intl.NumberFormat("pt-BR", {
 
 export default function ProdutosPage() {
   const { data, isLoading, isError } = useProducts();
+  const { isAdmin } = useCurrentUser();
+  const deleteProductMutation = useDeleteProduct();
+
+  const [deleteError, setDeleteError] = useState<string | null>(null);
+
+  function handleDelete(id: string, name: string) {
+    if (!confirm(`Excluir o produto "${name}"?`)) return;
+
+    setDeleteError(null);
+    deleteProductMutation.mutate(id, {
+      onError: (error) => {
+        if (isAxiosError(error) && error.response?.status === 403) {
+          setDeleteError(
+            "Você não tem permissão para excluir produtos — essa ação é restrita a administradores."
+          );
+          return;
+        }
+
+        const detail = isAxiosError<{ detail?: string }>(error)
+          ? error.response?.data?.detail
+          : undefined;
+        setDeleteError(detail ?? "Não foi possível excluir o produto.");
+      },
+    });
+  }
 
   return (
     <div className="flex flex-col gap-4">
@@ -44,6 +73,8 @@ export default function ProdutosPage() {
           rodando e se o CORS já foi configurado (etapa 12 do backend).
         </p>
       )}
+
+      {deleteError && <p className="text-sm text-destructive">{deleteError}</p>}
 
       {data && (
         <Table>
@@ -72,12 +103,22 @@ export default function ProdutosPage() {
                 <TableCell>{currencyFormatter.format(product.price)}</TableCell>
                 <TableCell>{product.quantityInStock}</TableCell>
                 <TableCell>
-                  <div className="flex justify-end">
+                  <div className="flex justify-end gap-2">
                     <Button variant="outline" size="sm" asChild>
                       <Link href={`/produtos/${product.id}/editar`}>
                         Editar
                       </Link>
                     </Button>
+                    {isAdmin && (
+                      <Button
+                        variant="destructive"
+                        size="sm"
+                        disabled={deleteProductMutation.isPending}
+                        onClick={() => handleDelete(product.id, product.name)}
+                      >
+                        Excluir
+                      </Button>
+                    )}
                   </div>
                 </TableCell>
               </TableRow>

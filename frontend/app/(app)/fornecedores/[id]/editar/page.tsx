@@ -4,6 +4,7 @@ import { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import Link from "next/link";
 import { useParams } from "next/navigation";
+import { isAxiosError } from "axios";
 import { useSupplier } from "@/hooks/useSupplier";
 import { useUpdateSupplier } from "@/hooks/useUpdateSupplier";
 import type { UpdateSupplierRequest } from "@/types/supplier";
@@ -159,8 +160,14 @@ export default function EditarFornecedorPage() {
 
                 {updateSupplierMutation.isError && (
                   <p className="text-sm text-destructive">
-                    Não foi possível salvar as alterações. Confira os dados e
-                    tente novamente.
+                    {/* Editar fornecedor virou ação de Admin na Etapa 27 do
+                    backend — o botão "Editar" da listagem já fica escondido
+                    pra quem não é Admin, mas esse 403 cobre quem chega aqui
+                    direto pela URL. */}
+                    {isAxiosError(updateSupplierMutation.error) &&
+                    updateSupplierMutation.error.response?.status === 403
+                      ? "Você não tem permissão para editar fornecedores — essa ação é restrita a administradores."
+                      : "Não foi possível salvar as alterações. Confira os dados e tente novamente."}
                   </p>
                 )}
 

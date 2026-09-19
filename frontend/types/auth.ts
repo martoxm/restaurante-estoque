@@ -15,3 +15,12 @@ export interface RegisterRequest {
   password: string;
 }
 
+
+export const ROLE_CLAIM =
+  "http://schemas.microsoft.com/ws/2008/06/identity/claims/role";
+
+export interface DecodedToken {
+  sub: string;
+  email: string;
+  [claim: string]: unknown;
+}

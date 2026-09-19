@@ -61,6 +61,11 @@ public class FakeProductRepository : IProductRepository
         _context.Products.Update(product);
     }
 
+    public void Remove(Product product)
+    {
+        _context.Products.Remove(product);
+    }
+
     private static IQueryable<Product> ApplySort(IQueryable<Product> query, ProductSortBy sortBy, SortDirection sortDirection)
     {
         return (sortBy, sortDirection) switch

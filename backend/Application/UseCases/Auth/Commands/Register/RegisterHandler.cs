@@ -1,40 +1,27 @@
 using MediatR;
-using RestauranteEstoque.Application.Abstractions.Repositories;
 using RestauranteEstoque.Application.Abstractions.Services;
 using RestauranteEstoque.Contracts.Auth;
-using RestauranteEstoque.Domain.Entities;
 
 namespace RestauranteEstoque.Application.UseCases.Auth.Commands.Register;
 
 public class RegisterHandler : IRequestHandler<RegisterCommand, LoginResponse>
 {
-    private readonly IUserRepository _userRepository;
-    private readonly IApplicationDbContext _context;
-    private readonly IPasswordHasher _passwordHasher;
+    private readonly IIdentityService _identityService;
     private readonly IJwtTokenGenerator _jwtTokenGenerator;
 
-    public RegisterHandler(
-        IUserRepository userRepository,
-        IApplicationDbContext context,
-        IPasswordHasher passwordHasher,
-        IJwtTokenGenerator jwtTokenGenerator)
+    public RegisterHandler(IIdentityService identityService, IJwtTokenGenerator jwtTokenGenerator)
     {
-        _userRepository = userRepository;
-        _context = context;
-        _passwordHasher = passwordHasher;
+        _identityService = identityService;
         _jwtTokenGenerator = jwtTokenGenerator;
     }
 
     public async Task<LoginResponse> Handle(RegisterCommand request, CancellationToken cancellationToken)
     {
-        var passwordHash = _passwordHasher.Hash(request.Password);
-        var user = User.Create(request.Name, request.Email, passwordHash);
+        var userId = await _identityService.CreateUserAsync(request.Name, request.Email, request.Password, cancellationToken);
+        var roles = await _identityService.GetRolesAsync(userId, cancellationToken);
 
-        _userRepository.Add(user);
-        await _context.SaveChangesAsync(cancellationToken);
+        var token = _jwtTokenGenerator.GenerateToken(userId, request.Name, request.Email, roles);
 
-        var token = _jwtTokenGenerator.GenerateToken(user);
-
-        return new LoginResponse(token, user.Name, user.Email);
+        return new LoginResponse(token, request.Name, request.Email);
     }
 }

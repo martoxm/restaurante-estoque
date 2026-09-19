@@ -6,6 +6,7 @@ using RestauranteEstoque.Application.UseCases.Categories.Commands.UpdateCategory
 using RestauranteEstoque.Application.UseCases.Categories.Queries.GetCategories;
 using RestauranteEstoque.Application.UseCases.Categories.Queries.GetCategoryById;
 using RestauranteEstoque.Application.Common.Models;
+using RestauranteEstoque.Contracts.Auth;
 using RestauranteEstoque.Contracts.Categories;
 
 namespace RestauranteEstoque.Api.Modules;
@@ -46,17 +47,21 @@ public class CategoryEndpointsModule : IEndpointModule
         group.MapPut("/{id:guid}", UpdateCategory)
             .WithName("UpdateCategory")
             .WithSummary("Atualiza uma categoria existente")
-            .WithDescription("Atualiza o nome e a descrição de uma categoria. Retorna 404 se ela não existir.")
+            .WithDescription("Atualiza o nome e a descrição de uma categoria. Requer a role Admin. Retorna 404 se ela não existir.")
+            .RequireAuthorization(policy => policy.RequireRole(RoleNames.Admin))
             .Produces(StatusCodes.Status204NoContent)
             .Produces(StatusCodes.Status400BadRequest)
+            .Produces(StatusCodes.Status403Forbidden)
             .Produces(StatusCodes.Status404NotFound);
 
         group.MapDelete("/{id:guid}", DeleteCategory)
             .WithName("DeleteCategory")
             .WithSummary("Exclui uma categoria")
-            .WithDescription("Exclui uma categoria, desde que ela não tenha produtos vinculados. Retorna 404 se ela não existir, e 400 se ainda houver produtos vinculados.")
+            .WithDescription("Exclui uma categoria, desde que ela não tenha produtos vinculados. Requer a role Admin. Retorna 404 se ela não existir, e 400 se ainda houver produtos vinculados.")
+            .RequireAuthorization(policy => policy.RequireRole(RoleNames.Admin))
             .Produces(StatusCodes.Status204NoContent)
             .Produces(StatusCodes.Status400BadRequest)
+            .Produces(StatusCodes.Status403Forbidden)
             .Produces(StatusCodes.Status404NotFound);
 
         return app;

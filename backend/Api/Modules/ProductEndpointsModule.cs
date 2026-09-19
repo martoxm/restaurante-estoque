@@ -2,9 +2,11 @@ using Asp.Versioning;
 using MediatR;
 using RestauranteEstoque.Application.Common.Models;
 using RestauranteEstoque.Application.UseCases.Products.Commands.CreateProduct;
+using RestauranteEstoque.Application.UseCases.Products.Commands.DeleteProduct;
 using RestauranteEstoque.Application.UseCases.Products.Commands.UpdateProduct;
 using RestauranteEstoque.Application.UseCases.Products.Queries.GetProductById;
 using RestauranteEstoque.Application.UseCases.Products.Queries.GetProducts;
+using RestauranteEstoque.Contracts.Auth;
 using RestauranteEstoque.Contracts.Products;
 
 namespace RestauranteEstoque.Api.Modules;
@@ -50,6 +52,16 @@ public class ProductEndpointsModule : IEndpointModule
             .Produces(StatusCodes.Status400BadRequest)
             .Produces(StatusCodes.Status404NotFound);
 
+        group.MapDelete("/{id:guid}", DeleteProduct)
+            .WithName("DeleteProduct")
+            .WithSummary("Exclui um produto")
+            .WithDescription("Exclui um produto, desde que ele não tenha movimentações de estoque vinculadas. Requer a role Admin. Retorna 404 se ele não existir, e 400 se ainda houver movimentações vinculadas.")
+            .RequireAuthorization(policy => policy.RequireRole(RoleNames.Admin))
+            .Produces(StatusCodes.Status204NoContent)
+            .Produces(StatusCodes.Status400BadRequest)
+            .Produces(StatusCodes.Status403Forbidden)
+            .Produces(StatusCodes.Status404NotFound);
+
         return app;
     }
 
@@ -82,6 +94,12 @@ public class ProductEndpointsModule : IEndpointModule
     private static async Task<IResult> UpdateProduct(Guid id, UpdateProductRequest request, ISender sender)
     {
         await sender.Send(new UpdateProductCommand(id, request.Name, request.Description, request.Price, request.CategoryId));
+        return Results.NoContent();
+    }
+
+    private static async Task<IResult> DeleteProduct(Guid id, ISender sender)
+    {
+        await sender.Send(new DeleteProductCommand(id));
         return Results.NoContent();
     }
 }

@@ -4,6 +4,7 @@ import { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import Link from "next/link";
 import { useParams } from "next/navigation";
+import { isAxiosError } from "axios";
 import { useCategory } from "@/hooks/useCategory";
 import { useUpdateCategory } from "@/hooks/useUpdateCategory";
 import type { UpdateCategoryRequest } from "@/types/category";
@@ -126,8 +127,14 @@ export default function EditarCategoriaPage() {
 
                 {updateCategoryMutation.isError && (
                   <p className="text-sm text-destructive">
-                    Não foi possível salvar as alterações. Confira os dados e
-                    tente novamente.
+                    {/* Editar categoria virou ação de Admin na Etapa 27 do
+                    backend — o botão "Editar" da listagem já fica escondido
+                    pra quem não é Admin, mas esse 403 cobre quem chega aqui
+                    direto pela URL. */}
+                    {isAxiosError(updateCategoryMutation.error) &&
+                    updateCategoryMutation.error.response?.status === 403
+                      ? "Você não tem permissão para editar categorias — essa ação é restrita a administradores."
+                      : "Não foi possível salvar as alterações. Confira os dados e tente novamente."}
                   </p>
                 )}
 

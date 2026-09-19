@@ -1,20 +1,43 @@
 <Solution>
+  <Configurations>
+    <BuildType Name="Debug" />
+    <BuildType Name="Default" />
+    <BuildType Name="Release" />
+  </Configurations>
   <Folder Name="/Api/">
-    <Project Path="Api/RestauranteEstoque.Api.csproj" />
+    <Project Path="Api/RestauranteEstoque.Api.csproj">
+      <BuildType Solution="Default|*" Project="Release" />
+      <Build Solution="Default|*" Project="false" />
+    </Project>
   </Folder>
   <Folder Name="/Application/">
-    <Project Path="Application/RestauranteEstoque.Application.csproj" />
+    <Project Path="Application/RestauranteEstoque.Application.csproj">
+      <BuildType Solution="Default|*" Project="Release" />
+      <Build Solution="Default|*" Project="false" />
+    </Project>
   </Folder>
   <Folder Name="/Contracts/">
-    <Project Path="Contracts/RestauranteEstoque.Contracts.csproj" />
+    <Project Path="Contracts/RestauranteEstoque.Contracts.csproj">
+      <BuildType Solution="Default|*" Project="Release" />
+      <Build Solution="Default|*" Project="false" />
+    </Project>
   </Folder>
   <Folder Name="/Domain/">
-    <Project Path="Domain/RestauranteEstoque.Domain.csproj" />
+    <Project Path="Domain/RestauranteEstoque.Domain.csproj">
+      <BuildType Solution="Default|*" Project="Release" />
+      <Build Solution="Default|*" Project="false" />
+    </Project>
   </Folder>
   <Folder Name="/Infrastructure/">
-    <Project Path="Infrastructure/RestauranteEstoque.Infrastructure.csproj" />
+    <Project Path="Infrastructure/RestauranteEstoque.Infrastructure.csproj">
+      <BuildType Solution="Default|*" Project="Release" />
+      <Build Solution="Default|*" Project="false" />
+    </Project>
   </Folder>
   <Folder Name="/Tests/">
-    <Project Path="Tests/RestauranteEstoque.Tests.csproj" />
+    <Project Path="Tests/RestauranteEstoque.Tests.csproj">
+      <BuildType Solution="Default|*" Project="Release" />
+      <Build Solution="Default|*" Project="false" />
+    </Project>
   </Folder>
 </Solution>
