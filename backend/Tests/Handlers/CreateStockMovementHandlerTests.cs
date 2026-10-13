@@ -1,5 +1,5 @@
 using RestauranteEstoque.Application.Common.Exceptions;
-using RestauranteEstoque.Application.UseCases.StockMovements.Commands.CreateStockMovement;
+using RestauranteEstoque.Application.UseCases.StockMovements;
 using RestauranteEstoque.Domain.Common;
 using RestauranteEstoque.Domain.Entities;
 using RestauranteEstoque.Domain.Enums;
