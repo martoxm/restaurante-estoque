@@ -1,11 +1,7 @@
 using Asp.Versioning;
 using MediatR;
 using RestauranteEstoque.Application.Common.Models;
-using RestauranteEstoque.Application.UseCases.Products.Commands.CreateProduct;
-using RestauranteEstoque.Application.UseCases.Products.Commands.DeleteProduct;
-using RestauranteEstoque.Application.UseCases.Products.Commands.UpdateProduct;
-using RestauranteEstoque.Application.UseCases.Products.Queries.GetProductById;
-using RestauranteEstoque.Application.UseCases.Products.Queries.GetProducts;
+using RestauranteEstoque.Application.UseCases.Products;
 using RestauranteEstoque.Contracts.Auth;
 using RestauranteEstoque.Contracts.Products;
 

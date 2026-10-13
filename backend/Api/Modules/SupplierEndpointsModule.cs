@@ -1,11 +1,7 @@
 using Asp.Versioning;
 using MediatR;
 using RestauranteEstoque.Application.Common.Models;
-using RestauranteEstoque.Application.UseCases.Suppliers.Commands.CreateSupplier;
-using RestauranteEstoque.Application.UseCases.Suppliers.Commands.DeleteSupplier;
-using RestauranteEstoque.Application.UseCases.Suppliers.Commands.UpdateSupplier;
-using RestauranteEstoque.Application.UseCases.Suppliers.Queries.GetSupplierById;
-using RestauranteEstoque.Application.UseCases.Suppliers.Queries.GetSuppliers;
+using RestauranteEstoque.Application.UseCases.Suppliers;
 using RestauranteEstoque.Contracts.Auth;
 using RestauranteEstoque.Contracts.Suppliers;
 
