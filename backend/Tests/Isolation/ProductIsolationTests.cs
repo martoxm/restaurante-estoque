@@ -12,17 +12,19 @@ public class ProductIsolationTests
     [Fact]
     public async Task GetPagedAsync_DeveRetornarSoProdutosDoRestauranteAtual()
     {
-        using var context = TestDbContextFactory.Create();
+        var currentUserService = new FakeCurrentUserService();
+        using var context = TestDbContextFactory.Create(currentUserService);
         var restauranteA = Guid.NewGuid();
         var restauranteB = Guid.NewGuid();
-        var categoria = Category.Create("Grãos", CreatedAt);
-        context.Categories.Add(categoria);
-        context.Products.Add(Product.Create("Arroz", null, 10m, categoria.Id, CreatedAt, restaurantId: restauranteA));
-        context.Products.Add(Product.Create("Feijão", null, 8m, categoria.Id, CreatedAt, restaurantId: restauranteB));
+        var categoriaDoA = Category.Create("Grãos", CreatedAt, restaurantId: restauranteA);
+        var categoriaDoB = Category.Create("Grãos", CreatedAt, restaurantId: restauranteB);
+        context.Categories.AddRange(categoriaDoA, categoriaDoB);
+        context.Products.Add(Product.Create("Arroz", null, 10m, categoriaDoA.Id, CreatedAt, restaurantId: restauranteA));
+        context.Products.Add(Product.Create("Feijão", null, 8m, categoriaDoB.Id, CreatedAt, restaurantId: restauranteB));
         await context.SaveChangesAsync();
 
-        var currentUserService = new FakeCurrentUserService { RestaurantId = restauranteA };
-        var repository = new FakeProductRepository(context, currentUserService);
+        currentUserService.RestaurantId = restauranteA;
+        var repository = new FakeProductRepository(context);
 
         var (items, totalCount) = await repository.GetPagedAsync(
             page: 1, pageSize: 10, name: null, categoryId: null,
@@ -35,17 +37,18 @@ public class ProductIsolationTests
     [Fact]
     public async Task GetByIdAsync_ComProdutoDeOutroRestaurante_DeveRetornarNull()
     {
-        using var context = TestDbContextFactory.Create();
+        var currentUserService = new FakeCurrentUserService();
+        using var context = TestDbContextFactory.Create(currentUserService);
         var restauranteA = Guid.NewGuid();
         var restauranteB = Guid.NewGuid();
-        var categoria = Category.Create("Grãos", CreatedAt);
+        var categoria = Category.Create("Grãos", CreatedAt, restaurantId: restauranteB);
         var produtoDoRestauranteB = Product.Create("Arroz", null, 10m, categoria.Id, CreatedAt, restaurantId: restauranteB);
         context.Categories.Add(categoria);
         context.Products.Add(produtoDoRestauranteB);
         await context.SaveChangesAsync();
 
-        var currentUserService = new FakeCurrentUserService { RestaurantId = restauranteA };
-        var repository = new FakeProductRepository(context, currentUserService);
+        currentUserService.RestaurantId = restauranteA;
+        var repository = new FakeProductRepository(context);
 
         var produto = await repository.GetByIdAsync(produtoDoRestauranteB.Id, CancellationToken.None);
 
@@ -55,19 +58,49 @@ public class ProductIsolationTests
     [Fact]
     public async Task GetByIdAsync_ComProdutoDoProprioRestaurante_DeveRetornarOProduto()
     {
-        using var context = TestDbContextFactory.Create();
+        var currentUserService = new FakeCurrentUserService();
+        using var context = TestDbContextFactory.Create(currentUserService);
         var restauranteA = Guid.NewGuid();
-        var categoria = Category.Create("Grãos", CreatedAt);
+        var categoria = Category.Create("Grãos", CreatedAt, restaurantId: restauranteA);
         var produto = Product.Create("Arroz", null, 10m, categoria.Id, CreatedAt, restaurantId: restauranteA);
         context.Categories.Add(categoria);
         context.Products.Add(produto);
         await context.SaveChangesAsync();
 
-        var currentUserService = new FakeCurrentUserService { RestaurantId = restauranteA };
-        var repository = new FakeProductRepository(context, currentUserService);
+        currentUserService.RestaurantId = restauranteA;
+        var repository = new FakeProductRepository(context);
 
         var produtoEncontrado = await repository.GetByIdAsync(produto.Id, CancellationToken.None);
 
         Assert.NotNull(produtoEncontrado);
+    }
+
+    [Fact]
+    public async Task GetPagedAsync_TrocandoORestauranteLogado_DeveRefletirNaProximaConsulta()
+    {
+        var currentUserService = new FakeCurrentUserService();
+        using var context = TestDbContextFactory.Create(currentUserService);
+        var restauranteA = Guid.NewGuid();
+        var restauranteB = Guid.NewGuid();
+        var categoriaDoA = Category.Create("Grãos", CreatedAt, restaurantId: restauranteA);
+        var categoriaDoB = Category.Create("Grãos", CreatedAt, restaurantId: restauranteB);
+        context.Categories.AddRange(categoriaDoA, categoriaDoB);
+        context.Products.Add(Product.Create("Arroz", null, 10m, categoriaDoA.Id, CreatedAt, restaurantId: restauranteA));
+        context.Products.Add(Product.Create("Feijão", null, 8m, categoriaDoB.Id, CreatedAt, restaurantId: restauranteB));
+        await context.SaveChangesAsync();
+        var repository = new FakeProductRepository(context);
+
+        currentUserService.RestaurantId = restauranteA;
+        var (itensDoA, _) = await repository.GetPagedAsync(
+            page: 1, pageSize: 10, name: null, categoryId: null,
+            sortBy: ProductSortBy.Name, sortDirection: SortDirection.Asc, CancellationToken.None);
+
+        currentUserService.RestaurantId = restauranteB;
+        var (itensDoB, _) = await repository.GetPagedAsync(
+            page: 1, pageSize: 10, name: null, categoryId: null,
+            sortBy: ProductSortBy.Name, sortDirection: SortDirection.Asc, CancellationToken.None);
+
+        Assert.Equal("Arroz", Assert.Single(itensDoA).Name);
+        Assert.Equal("Feijão", Assert.Single(itensDoB).Name);
     }
 }

@@ -11,15 +11,16 @@ public class CategoryIsolationTests
     [Fact]
     public async Task GetPagedAsync_DeveRetornarSoCategoriasDoRestauranteAtual()
     {
-        using var context = TestDbContextFactory.Create();
+        var currentUserService = new FakeCurrentUserService();
+        using var context = TestDbContextFactory.Create(currentUserService);
         var restauranteA = Guid.NewGuid();
         var restauranteB = Guid.NewGuid();
         context.Categories.Add(Category.Create("Grãos", CreatedAt, restaurantId: restauranteA));
         context.Categories.Add(Category.Create("Bebidas", CreatedAt, restaurantId: restauranteB));
         await context.SaveChangesAsync();
 
-        var currentUserService = new FakeCurrentUserService { RestaurantId = restauranteA };
-        var repository = new FakeCategoryRepository(context, currentUserService);
+        currentUserService.RestaurantId = restauranteA;
+        var repository = new FakeCategoryRepository(context);
 
         var (items, totalCount) = await repository.GetPagedAsync(
             page: 1, pageSize: 10, name: null, sortDirection: SortDirection.Asc, CancellationToken.None);
@@ -31,15 +32,16 @@ public class CategoryIsolationTests
     [Fact]
     public async Task GetByIdAsync_ComCategoriaDeOutroRestaurante_DeveRetornarNull()
     {
-        using var context = TestDbContextFactory.Create();
+        var currentUserService = new FakeCurrentUserService();
+        using var context = TestDbContextFactory.Create(currentUserService);
         var restauranteA = Guid.NewGuid();
         var restauranteB = Guid.NewGuid();
         var categoriaDoRestauranteB = Category.Create("Bebidas", CreatedAt, restaurantId: restauranteB);
         context.Categories.Add(categoriaDoRestauranteB);
         await context.SaveChangesAsync();
 
-        var currentUserService = new FakeCurrentUserService { RestaurantId = restauranteA };
-        var repository = new FakeCategoryRepository(context, currentUserService);
+        currentUserService.RestaurantId = restauranteA;
+        var repository = new FakeCategoryRepository(context);
 
         var categoria = await repository.GetByIdAsync(categoriaDoRestauranteB.Id, CancellationToken.None);
 
