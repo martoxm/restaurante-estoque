@@ -23,8 +23,8 @@ public class CreateStockMovementHandlerTests
 
         var currentUserService = new FakeCurrentUserService();
         var handler = new CreateStockMovementHandler(
-            new FakeStockMovementRepository(context, currentUserService),
-            new FakeProductRepository(context, currentUserService),
+            new FakeStockMovementRepository(context),
+            new FakeProductRepository(context),
             context,
             new FakeClock(),
             currentUserService);
@@ -51,8 +51,8 @@ public class CreateStockMovementHandlerTests
 
         var currentUserService = new FakeCurrentUserService();
         var handler = new CreateStockMovementHandler(
-            new FakeStockMovementRepository(context, currentUserService),
-            new FakeProductRepository(context, currentUserService),
+            new FakeStockMovementRepository(context),
+            new FakeProductRepository(context),
             context,
             new FakeClock(),
             currentUserService);
@@ -76,8 +76,8 @@ public class CreateStockMovementHandlerTests
 
         var currentUserService = new FakeCurrentUserService();
         var handler = new CreateStockMovementHandler(
-            new FakeStockMovementRepository(context, currentUserService),
-            new FakeProductRepository(context, currentUserService),
+            new FakeStockMovementRepository(context),
+            new FakeProductRepository(context),
             context,
             new FakeClock(),
             currentUserService);
@@ -92,8 +92,8 @@ public class CreateStockMovementHandlerTests
         using var context = TestDbContextFactory.Create();
         var currentUserService = new FakeCurrentUserService();
         var handler = new CreateStockMovementHandler(
-            new FakeStockMovementRepository(context, currentUserService),
-            new FakeProductRepository(context, currentUserService),
+            new FakeStockMovementRepository(context),
+            new FakeProductRepository(context),
             context,
             new FakeClock(),
             currentUserService);

@@ -11,10 +11,11 @@ public class StockMovementIsolationTests
     [Fact]
     public async Task ExistsForProductAsync_ComMovimentacaoDeOutroRestaurante_DeveRetornarFalse()
     {
-        using var context = TestDbContextFactory.Create();
+        var currentUserService = new FakeCurrentUserService();
+        using var context = TestDbContextFactory.Create(currentUserService);
         var restauranteA = Guid.NewGuid();
         var restauranteB = Guid.NewGuid();
-        var categoria = Category.Create("Grãos", CreatedAt);
+        var categoria = Category.Create("Grãos", CreatedAt, restaurantId: restauranteB);
         var produto = Product.Create("Arroz", null, 10m, categoria.Id, CreatedAt, restaurantId: restauranteB);
         var movimentacao = StockMovement.Create(produto.Id, StockMovementType.Entrada, 5, CreatedAt, restaurantId: restauranteB);
         context.Categories.Add(categoria);
@@ -22,8 +23,8 @@ public class StockMovementIsolationTests
         context.StockMovements.Add(movimentacao);
         await context.SaveChangesAsync();
 
-        var currentUserService = new FakeCurrentUserService { RestaurantId = restauranteA };
-        var repository = new FakeStockMovementRepository(context, currentUserService);
+        currentUserService.RestaurantId = restauranteA;
+        var repository = new FakeStockMovementRepository(context);
 
         var existe = await repository.ExistsForProductAsync(produto.Id, CancellationToken.None);
 
@@ -33,9 +34,10 @@ public class StockMovementIsolationTests
     [Fact]
     public async Task ExistsForProductAsync_ComMovimentacaoDoProprioRestaurante_DeveRetornarTrue()
     {
-        using var context = TestDbContextFactory.Create();
+        var currentUserService = new FakeCurrentUserService();
+        using var context = TestDbContextFactory.Create(currentUserService);
         var restauranteA = Guid.NewGuid();
-        var categoria = Category.Create("Grãos", CreatedAt);
+        var categoria = Category.Create("Grãos", CreatedAt, restaurantId: restauranteA);
         var produto = Product.Create("Arroz", null, 10m, categoria.Id, CreatedAt, restaurantId: restauranteA);
         var movimentacao = StockMovement.Create(produto.Id, StockMovementType.Entrada, 5, CreatedAt, restaurantId: restauranteA);
         context.Categories.Add(categoria);
@@ -43,8 +45,8 @@ public class StockMovementIsolationTests
         context.StockMovements.Add(movimentacao);
         await context.SaveChangesAsync();
 
-        var currentUserService = new FakeCurrentUserService { RestaurantId = restauranteA };
-        var repository = new FakeStockMovementRepository(context, currentUserService);
+        currentUserService.RestaurantId = restauranteA;
+        var repository = new FakeStockMovementRepository(context);
 
         var existe = await repository.ExistsForProductAsync(produto.Id, CancellationToken.None);
 

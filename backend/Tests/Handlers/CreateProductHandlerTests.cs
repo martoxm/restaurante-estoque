@@ -10,7 +10,7 @@ public class CreateProductHandlerTests
     {
         using var context = TestDbContextFactory.Create();
         var currentUserService = new FakeCurrentUserService();
-        var handler = new CreateProductHandler(new FakeProductRepository(context, currentUserService), context, currentUserService, new FakeClock());
+        var handler = new CreateProductHandler(new FakeProductRepository(context), context, currentUserService, new FakeClock());
         var categoryId = Guid.NewGuid();
         var command = new CreateProductCommand("Arroz", "Arroz branco tipo 1", 25.90m, categoryId, InitialQuantity: 10);
 

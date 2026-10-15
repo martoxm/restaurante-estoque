@@ -9,7 +9,7 @@ namespace RestauranteEstoque.Api.Modules;
 
 public class SupplierEndpointsModule : IEndpointModule
 {
-    public IEndpointRouteBuilder MapEndpoints(IEndpointRouteBuilder app)
+    public void MapEndpoints(IEndpointRouteBuilder app)
     {
         var versionSet = app.NewApiVersionSet()
             .HasApiVersion(new ApiVersion(1, 0))
@@ -58,8 +58,6 @@ public class SupplierEndpointsModule : IEndpointModule
             .Produces(StatusCodes.Status204NoContent)
             .Produces(StatusCodes.Status403Forbidden)
             .Produces(StatusCodes.Status404NotFound);
-
-        return app;
     }
 
     private static async Task<IResult> CreateSupplier(CreateSupplierCommand command, ISender sender)

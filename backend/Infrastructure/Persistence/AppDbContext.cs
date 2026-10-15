@@ -8,9 +8,15 @@ namespace RestauranteEstoque.Infrastructure.Persistence;
 
 public class AppDbContext : IdentityDbContext<ApplicationUser, ApplicationRole, Guid>, IApplicationDbContext
 {
-    public AppDbContext(DbContextOptions<AppDbContext> options) : base(options)
+    private readonly ICurrentUserService _currentUserService;
+
+    public AppDbContext(DbContextOptions<AppDbContext> options, ICurrentUserService currentUserService)
+        : base(options)
     {
+        _currentUserService = currentUserService;
     }
+
+    private Guid? CurrentRestaurantId => _currentUserService.RestaurantId;
 
     public DbSet<Category> Categories => Set<Category>();
     public DbSet<Product> Products => Set<Product>();
@@ -23,5 +29,10 @@ public class AppDbContext : IdentityDbContext<ApplicationUser, ApplicationRole, 
         base.OnModelCreating(modelBuilder);
 
         modelBuilder.ApplyConfigurationsFromAssembly(typeof(AppDbContext).Assembly);
+
+        modelBuilder.Entity<Product>().HasQueryFilter(product => product.RestaurantId == CurrentRestaurantId);
+        modelBuilder.Entity<Category>().HasQueryFilter(category => category.RestaurantId == CurrentRestaurantId);
+        modelBuilder.Entity<Supplier>().HasQueryFilter(supplier => supplier.RestaurantId == CurrentRestaurantId);
+        modelBuilder.Entity<StockMovement>().HasQueryFilter(movement => movement.RestaurantId == CurrentRestaurantId);
     }
 }

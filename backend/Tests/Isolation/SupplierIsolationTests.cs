@@ -11,15 +11,16 @@ public class SupplierIsolationTests
     [Fact]
     public async Task GetPagedAsync_DeveRetornarSoFornecedoresDoRestauranteAtual()
     {
-        using var context = TestDbContextFactory.Create();
+        var currentUserService = new FakeCurrentUserService();
+        using var context = TestDbContextFactory.Create(currentUserService);
         var restauranteA = Guid.NewGuid();
         var restauranteB = Guid.NewGuid();
         context.Suppliers.Add(Supplier.Create("Distribuidora A", CreatedAt, restaurantId: restauranteA));
         context.Suppliers.Add(Supplier.Create("Distribuidora B", CreatedAt, restaurantId: restauranteB));
         await context.SaveChangesAsync();
 
-        var currentUserService = new FakeCurrentUserService { RestaurantId = restauranteA };
-        var repository = new FakeSupplierRepository(context, currentUserService);
+        currentUserService.RestaurantId = restauranteA;
+        var repository = new FakeSupplierRepository(context);
 
         var (items, totalCount) = await repository.GetPagedAsync(
             page: 1, pageSize: 10, name: null, sortDirection: SortDirection.Asc, CancellationToken.None);
@@ -31,15 +32,16 @@ public class SupplierIsolationTests
     [Fact]
     public async Task GetByIdAsync_ComFornecedorDeOutroRestaurante_DeveRetornarNull()
     {
-        using var context = TestDbContextFactory.Create();
+        var currentUserService = new FakeCurrentUserService();
+        using var context = TestDbContextFactory.Create(currentUserService);
         var restauranteA = Guid.NewGuid();
         var restauranteB = Guid.NewGuid();
         var fornecedorDoRestauranteB = Supplier.Create("Distribuidora B", CreatedAt, restaurantId: restauranteB);
         context.Suppliers.Add(fornecedorDoRestauranteB);
         await context.SaveChangesAsync();
 
-        var currentUserService = new FakeCurrentUserService { RestaurantId = restauranteA };
-        var repository = new FakeSupplierRepository(context, currentUserService);
+        currentUserService.RestaurantId = restauranteA;
+        var repository = new FakeSupplierRepository(context);
 
         var fornecedor = await repository.GetByIdAsync(fornecedorDoRestauranteB.Id, CancellationToken.None);
 

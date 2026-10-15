@@ -7,7 +7,7 @@ namespace RestauranteEstoque.Api.Modules;
 
 public class AuthEndpointsModule : IEndpointModule
 {
-    public IEndpointRouteBuilder MapEndpoints(IEndpointRouteBuilder app)
+    public void MapEndpoints(IEndpointRouteBuilder app)
     {
         var versionSet = app.NewApiVersionSet()
             .HasApiVersion(new ApiVersion(1, 0))
@@ -31,8 +31,6 @@ public class AuthEndpointsModule : IEndpointModule
             .WithDescription("Cria um usuário novo (nome, e-mail e senha) e já devolve um token JWT, exatamente como o /login — não é preciso logar de novo depois de se cadastrar.")
             .Produces<LoginResponse>(StatusCodes.Status200OK)
             .Produces(StatusCodes.Status400BadRequest);
-
-        return app;
     }
 
     private static async Task<IResult> Login(LoginCommand command, ISender sender)
