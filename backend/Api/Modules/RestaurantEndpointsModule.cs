@@ -2,6 +2,7 @@ using Asp.Versioning;
 using MediatR;
 using RestauranteEstoque.Application.Common.Models;
 using RestauranteEstoque.Application.UseCases.Restaurants;
+using RestauranteEstoque.Contracts.Auth;
 using RestauranteEstoque.Contracts.Restaurants;
 
 namespace RestauranteEstoque.Api.Modules;
@@ -20,45 +21,28 @@ public class RestaurantEndpointsModule : IEndpointModule
             .WithTags("Restaurants")
             .RequireAuthorization();
 
-        group.MapPost("", CreateRestaurant)
-            .WithName("CreateRestaurant")
-            .WithSummary("Cria um novo restaurante")
-            .WithDescription("Cria um restaurante (tenant do sistema multi-restaurante).")
-            .Produces<RestaurantCreatedResponse>(StatusCodes.Status201Created);
-
         group.MapGet("", GetRestaurants)
             .WithName("GetRestaurants")
             .WithSummary("Lista restaurantes com paginação")
-            .WithDescription("Lista restaurantes de forma paginada, com filtro opcional por nome e ordenação por nome (crescente ou decrescente).")
+            .WithDescription("Lista os restaurantes visíveis ao usuário logado (na prática, só o dele), de forma paginada, com filtro opcional por nome e ordenação por nome.")
             .Produces<PagedResult<RestaurantListItemDto>>(StatusCodes.Status200OK);
 
         group.MapGet("/{id:guid}", GetRestaurantById)
             .WithName("GetRestaurantById")
             .WithSummary("Busca um restaurante pelo Id")
-            .WithDescription("Retorna os detalhes de um restaurante específico, ou 404 se ele não existir.")
+            .WithDescription("Retorna os detalhes do restaurante do usuário logado, ou 404 se o Id não existir ou for de outro restaurante.")
             .Produces<RestaurantDetailsDto>(StatusCodes.Status200OK)
             .Produces(StatusCodes.Status404NotFound);
 
         group.MapPut("/{id:guid}", UpdateRestaurant)
             .WithName("UpdateRestaurant")
             .WithSummary("Atualiza um restaurante existente")
-            .WithDescription("Atualiza o nome de um restaurante. Retorna 404 se ele não existir.")
+            .WithDescription("Atualiza o nome do restaurante do usuário logado. Exige a role Admin. Retorna 404 se o Id for de outro restaurante.")
             .Produces(StatusCodes.Status204NoContent)
             .Produces(StatusCodes.Status400BadRequest)
-            .Produces(StatusCodes.Status404NotFound);
-
-        group.MapDelete("/{id:guid}", DeleteRestaurant)
-            .WithName("DeleteRestaurant")
-            .WithSummary("Exclui um restaurante")
-            .WithDescription("Exclui um restaurante. Retorna 404 se ele não existir.")
-            .Produces(StatusCodes.Status204NoContent)
-            .Produces(StatusCodes.Status404NotFound);
-    }
-
-    private static async Task<IResult> CreateRestaurant(CreateRestaurantCommand command, ISender sender)
-    {
-        var id = await sender.Send(command);
-        return Results.Created($"/api/v1/restaurants/{id}", new RestaurantCreatedResponse(id));
+            .Produces(StatusCodes.Status403Forbidden)
+            .Produces(StatusCodes.Status404NotFound)
+            .RequireAuthorization(policy => policy.RequireRole(RoleNames.Admin));
     }
 
     private static async Task<IResult> GetRestaurants([AsParameters] GetRestaurantsRequest request, ISender sender)
@@ -77,12 +61,6 @@ public class RestaurantEndpointsModule : IEndpointModule
     private static async Task<IResult> UpdateRestaurant(Guid id, UpdateRestaurantRequest request, ISender sender)
     {
         await sender.Send(new UpdateRestaurantCommand(id, request.Name));
-        return Results.NoContent();
-    }
-
-    private static async Task<IResult> DeleteRestaurant(Guid id, ISender sender)
-    {
-        await sender.Send(new DeleteRestaurantCommand(id));
         return Results.NoContent();
     }
 }

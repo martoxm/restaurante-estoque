@@ -3,16 +3,6 @@ using RestauranteEstoque.Application.UseCases.Restaurants;
 
 namespace RestauranteEstoque.Application.Validators;
 
-public class CreateRestaurantCommandValidator : AbstractValidator<CreateRestaurantCommand>
-{
-    public CreateRestaurantCommandValidator()
-    {
-        RuleFor(command => command.Name)
-            .NotEmpty().WithMessage("O nome do restaurante é obrigatório.")
-            .MaximumLength(150).WithMessage("O nome do restaurante deve ter no máximo 150 caracteres.");
-    }
-}
-
 public class GetRestaurantsQueryValidator : AbstractValidator<GetRestaurantsQuery>
 {
     public GetRestaurantsQueryValidator()
