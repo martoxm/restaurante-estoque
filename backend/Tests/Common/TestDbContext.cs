@@ -18,6 +18,7 @@ public class TestDbContext : DbContext, IApplicationDbContext
     public DbSet<Product> Products => Set<Product>();
     public DbSet<StockMovement> StockMovements => Set<StockMovement>();
     public DbSet<Supplier> Suppliers => Set<Supplier>();
+    public DbSet<Restaurant> Restaurants => Set<Restaurant>();
 
     private Guid? CurrentRestaurantId => _currentUserService.RestaurantId;
 
@@ -27,6 +28,8 @@ public class TestDbContext : DbContext, IApplicationDbContext
         modelBuilder.Entity<Category>().HasQueryFilter(category => category.RestaurantId == CurrentRestaurantId);
         modelBuilder.Entity<Supplier>().HasQueryFilter(supplier => supplier.RestaurantId == CurrentRestaurantId);
         modelBuilder.Entity<StockMovement>().HasQueryFilter(movement => movement.RestaurantId == CurrentRestaurantId);
+
+        modelBuilder.Entity<Restaurant>().HasQueryFilter(restaurant => restaurant.Id == CurrentRestaurantId);
     }
 }
 

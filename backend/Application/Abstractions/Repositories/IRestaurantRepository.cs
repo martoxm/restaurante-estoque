@@ -17,6 +17,4 @@ public interface IRestaurantRepository
     void Add(Restaurant restaurant);
 
     void Update(Restaurant restaurant);
-
-    void Remove(Restaurant restaurant);
 }

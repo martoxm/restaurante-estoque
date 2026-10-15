@@ -55,9 +55,4 @@ public class RestaurantRepository : IRestaurantRepository
     {
         _context.Restaurants.Update(restaurant);
     }
-
-    public void Remove(Restaurant restaurant)
-    {
-        _context.Restaurants.Remove(restaurant);
-    }
 }

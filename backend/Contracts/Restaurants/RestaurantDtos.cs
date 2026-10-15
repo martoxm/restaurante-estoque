@@ -8,8 +8,6 @@ public record GetRestaurantsRequest(
     string? Name = null,
     SortDirection SortDirection = SortDirection.Asc);
 
-public record RestaurantCreatedResponse(Guid Id);
-
 public record RestaurantDetailsDto(Guid Id, string Name, DateTime CreatedAt);
 
 public record RestaurantListItemDto(Guid Id, string Name, DateTime CreatedAt);
