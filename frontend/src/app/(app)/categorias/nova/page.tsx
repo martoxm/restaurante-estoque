@@ -1,1 +1,1 @@
-export { NewCategoryPage as default } from "@/features/categories/pages/new-category-page";
+export { NovaCategoriaPage as default } from "@/features/categorias/pages/nova-categoria-page";

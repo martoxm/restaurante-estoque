@@ -2,62 +2,62 @@
 
 import Link from "next/link";
 import { Package, Tags, Truck, AlertTriangle } from "lucide-react";
-import { useProducts } from "@/features/products/hooks/useProducts";
-import { useCategories } from "@/features/categories/hooks/useCategories";
-import { useSuppliers } from "@/features/suppliers/hooks/useSuppliers";
-import { useCurrentUser } from "@/features/auth/hooks/useCurrentUser";
-import { useRestaurant } from "@/features/restaurants/hooks/useRestaurant";
+import { useProdutos } from "@/features/produtos/hooks/useProdutos";
+import { useCategorias } from "@/features/categorias/hooks/useCategorias";
+import { useFornecedores } from "@/features/fornecedores/hooks/useFornecedores";
+import { useUsuarioAtual } from "@/features/auth/hooks/useUsuarioAtual";
+import { useRestaurante } from "@/features/restaurantes/hooks/useRestaurante";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useDashboardCharts } from "@/features/dashboard/hooks/useDashboardCharts";
-import { ProductsByCategoryChart } from "@/features/dashboard/components/products-by-category-chart";
-import { StockByCategoryChart } from "@/features/dashboard/components/stock-by-category-chart";
+import { ProdutosPorCategoriaChart } from "@/features/dashboard/components/produtos-por-categoria-chart";
+import { EstoquePorCategoriaChart } from "@/features/dashboard/components/estoque-por-categoria-chart";
 
-const LOW_STOCK_THRESHOLD = 10;
+const LIMITE_ESTOQUE_BAIXO = 10;
 
 export function DashboardPage() {
-  const { data: products, isLoading: isLoadingProducts } = useProducts({
-    pageSize: 100,
+  const { data: produtos, isLoading: isLoadingProdutos } = useProdutos({
+    tamanhoPagina: 100,
   });
-  const { data: categories, isLoading: isLoadingCategories } = useCategories();
-  const { data: suppliers, isLoading: isLoadingSuppliers } = useSuppliers();
+  const { data: categorias, isLoading: isLoadingCategorias } = useCategorias();
+  const { data: fornecedores, isLoading: isLoadingFornecedores } = useFornecedores();
 
-  const { restaurantId } = useCurrentUser();
-  const { data: restaurant, isLoading: isLoadingRestaurant } =
-    useRestaurant(restaurantId);
+  const { restauranteId } = useUsuarioAtual();
+  const { data: restaurante, isLoading: isLoadingRestaurante } =
+    useRestaurante(restauranteId);
 
-  const { categoryDistribution, stockByCategory } = useDashboardCharts();
+  const { distribuicaoCategorias, estoquePorCategoria } = useDashboardCharts();
 
-  const lowStockCount =
-    products?.items.filter(
-      (product) => product.quantityInStock <= LOW_STOCK_THRESHOLD
+  const quantidadeEstoqueBaixo =
+    produtos?.itens.filter(
+      (produto) => produto.quantidadeEmEstoque < LIMITE_ESTOQUE_BAIXO
     ).length ?? 0;
 
   const cards = [
     {
       label: "Produtos cadastrados",
-      value: products?.totalCount,
-      isLoading: isLoadingProducts,
+      value: produtos?.totalItens,
+      isLoading: isLoadingProdutos,
       icon: Package,
       href: "/produtos",
     },
     {
       label: "Categorias",
-      value: categories?.totalCount,
-      isLoading: isLoadingCategories,
+      value: categorias?.totalItens,
+      isLoading: isLoadingCategorias,
       icon: Tags,
       href: "/categorias",
     },
     {
       label: "Fornecedores",
-      value: suppliers?.totalCount,
-      isLoading: isLoadingSuppliers,
+      value: fornecedores?.totalItens,
+      isLoading: isLoadingFornecedores,
       icon: Truck,
       href: "/fornecedores",
     },
     {
       label: "Produtos com estoque baixo",
-      value: lowStockCount,
-      isLoading: isLoadingProducts,
+      value: quantidadeEstoqueBaixo,
+      isLoading: isLoadingProdutos,
       icon: AlertTriangle,
       href: "/produtos",
     },
@@ -68,10 +68,10 @@ export function DashboardPage() {
       <div>
         <h1 className="font-heading text-lg font-semibold">Dashboard</h1>
         <p className="text-sm text-muted-foreground">
-          {isLoadingRestaurant
+          {isLoadingRestaurante
             ? "Carregando restaurante..."
-            : restaurant
-              ? `Restaurante: ${restaurant.name}`
+            : restaurante
+              ? `Restaurante: ${restaurante.nome}`
               : null}
         </p>
       </div>
@@ -105,8 +105,8 @@ export function DashboardPage() {
       </div>
 
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
-        <ProductsByCategoryChart data={categoryDistribution} />
-        <StockByCategoryChart data={stockByCategory} />
+        <ProdutosPorCategoriaChart data={distribuicaoCategorias} />
+        <EstoquePorCategoriaChart data={estoquePorCategoria} />
       </div>
     </div>
   );

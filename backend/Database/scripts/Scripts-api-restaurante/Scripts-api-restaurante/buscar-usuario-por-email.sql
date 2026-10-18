@@ -18,7 +18,7 @@ DECLARE @Email NVARCHAR(256) = 'seuemail@aqui.com'; -- troque aqui
 SELECT
     u.Id,
     u.Email,
-    u.Name,
+    u.Nome,
     r.Name AS Role
 FROM AspNetUsers u
 LEFT JOIN AspNetUserRoles ur ON ur.UserId = u.Id

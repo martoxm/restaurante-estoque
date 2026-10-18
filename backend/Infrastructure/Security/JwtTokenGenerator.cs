@@ -16,21 +16,21 @@ public class JwtTokenGenerator : IJwtTokenGenerator
         _settings = options.Value;
     }
 
-    public string GenerateToken(Guid userId, string name, string email, IEnumerable<string> roles, Guid? restaurantId)
+    public string GerarToken(Guid usuarioId, string nome, string email, IEnumerable<string> roles, Guid? restauranteId)
     {
         var claims = new List<Claim>
         {
-            new Claim(JwtRegisteredClaimNames.Sub, userId.ToString()),
+            new Claim(JwtRegisteredClaimNames.Sub, usuarioId.ToString()),
             new Claim(JwtRegisteredClaimNames.Email, email),
-            new Claim(ClaimTypes.Name, name),
+            new Claim(ClaimTypes.Name, nome),
             new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
         };
 
         claims.AddRange(roles.Select(role => new Claim(ClaimTypes.Role, role)));
 
-        if (restaurantId.HasValue)
+        if (restauranteId.HasValue)
         {
-            claims.Add(new Claim(CurrentUserService.RestaurantIdClaimType, restaurantId.Value.ToString()));
+            claims.Add(new Claim(UsuarioAtualService.RestauranteIdClaimType, restauranteId.Value.ToString()));
         }
 
         var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_settings.Secret));

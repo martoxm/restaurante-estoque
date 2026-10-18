@@ -8,21 +8,23 @@ namespace RestauranteEstoque.Infrastructure.Persistence;
 
 public class AppDbContext : IdentityDbContext<ApplicationUser, ApplicationRole, Guid>, IApplicationDbContext
 {
-    private readonly ICurrentUserService _currentUserService;
+    private readonly IUsuarioAtualService _usuarioAtualService;
 
-    public AppDbContext(DbContextOptions<AppDbContext> options, ICurrentUserService currentUserService)
+    public AppDbContext(DbContextOptions<AppDbContext> options, IUsuarioAtualService usuarioAtualService)
         : base(options)
     {
-        _currentUserService = currentUserService;
+        _usuarioAtualService = usuarioAtualService;
     }
 
-    private Guid? CurrentRestaurantId => _currentUserService.RestaurantId;
+    private Guid? RestauranteIdAtual => _usuarioAtualService.RestauranteId;
 
-    public DbSet<Category> Categories => Set<Category>();
-    public DbSet<Product> Products => Set<Product>();
-    public DbSet<StockMovement> StockMovements => Set<StockMovement>();
-    public DbSet<Supplier> Suppliers => Set<Supplier>();
-    public DbSet<Restaurant> Restaurants => Set<Restaurant>();
+    public DbSet<Categoria> Categorias => Set<Categoria>();
+    public DbSet<Produto> Produtos => Set<Produto>();
+    public DbSet<MovimentacaoEstoque> MovimentacoesEstoque => Set<MovimentacaoEstoque>();
+    public DbSet<Fornecedor> Fornecedores => Set<Fornecedor>();
+    public DbSet<Restaurante> Restaurantes => Set<Restaurante>();
+
+    public DbSet<OutboxEmail> OutboxEmails => Set<OutboxEmail>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -30,11 +32,11 @@ public class AppDbContext : IdentityDbContext<ApplicationUser, ApplicationRole, 
 
         modelBuilder.ApplyConfigurationsFromAssembly(typeof(AppDbContext).Assembly);
 
-        modelBuilder.Entity<Product>().HasQueryFilter(product => product.RestaurantId == CurrentRestaurantId);
-        modelBuilder.Entity<Category>().HasQueryFilter(category => category.RestaurantId == CurrentRestaurantId);
-        modelBuilder.Entity<Supplier>().HasQueryFilter(supplier => supplier.RestaurantId == CurrentRestaurantId);
-        modelBuilder.Entity<StockMovement>().HasQueryFilter(movement => movement.RestaurantId == CurrentRestaurantId);
+        modelBuilder.Entity<Produto>().HasQueryFilter(produto => produto.RestauranteId == RestauranteIdAtual);
+        modelBuilder.Entity<Categoria>().HasQueryFilter(categoria => categoria.RestauranteId == RestauranteIdAtual);
+        modelBuilder.Entity<Fornecedor>().HasQueryFilter(fornecedor => fornecedor.RestauranteId == RestauranteIdAtual);
+        modelBuilder.Entity<MovimentacaoEstoque>().HasQueryFilter(movimentacao => movimentacao.RestauranteId == RestauranteIdAtual);
 
-        modelBuilder.Entity<Restaurant>().HasQueryFilter(restaurant => restaurant.Id == CurrentRestaurantId);
+        modelBuilder.Entity<Restaurante>().HasQueryFilter(restaurante => restaurante.Id == RestauranteIdAtual);
     }
 }

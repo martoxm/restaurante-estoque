@@ -25,8 +25,8 @@ public class AuthEndpointsModule : IEndpointModule
             .Produces<LoginResponse>(StatusCodes.Status200OK)
             .Produces(StatusCodes.Status401Unauthorized);
 
-        group.MapPost("/register", Register)
-            .WithName("Register")
+        group.MapPost("/registrar", Registrar)
+            .WithName("Registrar")
             .WithSummary("Cadastra um novo usuário")
             .WithDescription("Cria um usuário novo (nome, e-mail e senha) e já devolve um token JWT, exatamente como o /login — não é preciso logar de novo depois de se cadastrar.")
             .Produces<LoginResponse>(StatusCodes.Status200OK)
@@ -39,7 +39,7 @@ public class AuthEndpointsModule : IEndpointModule
         return Results.Ok(result);
     }
 
-    private static async Task<IResult> Register(RegisterCommand command, ISender sender)
+    private static async Task<IResult> Registrar(RegistrarCommand command, ISender sender)
     {
         var result = await sender.Send(command);
         return Results.Ok(result);

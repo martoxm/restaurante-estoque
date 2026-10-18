@@ -1,46 +1,56 @@
 using Microsoft.EntityFrameworkCore;
 using RestauranteEstoque.Application.Abstractions.Services;
 using RestauranteEstoque.Domain.Entities;
+using RestauranteEstoque.Domain.ValueObjects;
 
 namespace RestauranteEstoque.Tests.Common;
 
 public class TestDbContext : DbContext, IApplicationDbContext
 {
-    private readonly ICurrentUserService _currentUserService;
+    private readonly IUsuarioAtualService _usuarioAtualService;
 
-    public TestDbContext(DbContextOptions<TestDbContext> options, ICurrentUserService currentUserService)
+    public TestDbContext(DbContextOptions<TestDbContext> options, IUsuarioAtualService usuarioAtualService)
         : base(options)
     {
-        _currentUserService = currentUserService;
+        _usuarioAtualService = usuarioAtualService;
     }
 
-    public DbSet<Category> Categories => Set<Category>();
-    public DbSet<Product> Products => Set<Product>();
-    public DbSet<StockMovement> StockMovements => Set<StockMovement>();
-    public DbSet<Supplier> Suppliers => Set<Supplier>();
-    public DbSet<Restaurant> Restaurants => Set<Restaurant>();
+    public DbSet<Categoria> Categorias => Set<Categoria>();
+    public DbSet<Produto> Produtos => Set<Produto>();
+    public DbSet<MovimentacaoEstoque> MovimentacoesEstoque => Set<MovimentacaoEstoque>();
+    public DbSet<Fornecedor> Fornecedores => Set<Fornecedor>();
+    public DbSet<Restaurante> Restaurantes => Set<Restaurante>();
 
-    private Guid? CurrentRestaurantId => _currentUserService.RestaurantId;
+    private Guid? RestauranteIdAtual => _usuarioAtualService.RestauranteId;
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
-        modelBuilder.Entity<Product>().HasQueryFilter(product => product.RestaurantId == CurrentRestaurantId);
-        modelBuilder.Entity<Category>().HasQueryFilter(category => category.RestaurantId == CurrentRestaurantId);
-        modelBuilder.Entity<Supplier>().HasQueryFilter(supplier => supplier.RestaurantId == CurrentRestaurantId);
-        modelBuilder.Entity<StockMovement>().HasQueryFilter(movement => movement.RestaurantId == CurrentRestaurantId);
+        modelBuilder.Entity<Produto>().HasQueryFilter(produto => produto.RestauranteId == RestauranteIdAtual);
+        modelBuilder.Entity<Categoria>().HasQueryFilter(categoria => categoria.RestauranteId == RestauranteIdAtual);
+        modelBuilder.Entity<Fornecedor>().HasQueryFilter(fornecedor => fornecedor.RestauranteId == RestauranteIdAtual);
+        modelBuilder.Entity<MovimentacaoEstoque>().HasQueryFilter(movimentacao => movimentacao.RestauranteId == RestauranteIdAtual);
 
-        modelBuilder.Entity<Restaurant>().HasQueryFilter(restaurant => restaurant.Id == CurrentRestaurantId);
+        modelBuilder.Entity<Restaurante>().HasQueryFilter(restaurante => restaurante.Id == RestauranteIdAtual);
+
+        modelBuilder.Entity<Produto>().Property(produto => produto.Preco)
+            .HasConversion(preco => preco.Valor, valor => Dinheiro.Criar(valor));
+        modelBuilder.Entity<Produto>().Property(produto => produto.QuantidadeEmEstoque)
+            .HasConversion(quantidade => quantidade.Valor, valor => Quantidade.Criar(valor));
+        modelBuilder.Entity<MovimentacaoEstoque>().Property(movimentacao => movimentacao.Quantidade)
+            .HasConversion(quantidade => quantidade.Valor, valor => Quantidade.Criar(valor));
+        modelBuilder.Entity<Fornecedor>().Property(fornecedor => fornecedor.Email)
+            .HasConversion(email => email.Valor, valor => Email.Criar(valor));
     }
 }
 
 public static class TestDbContextFactory
 {
-    public static TestDbContext Create(ICurrentUserService? currentUserService = null)
+    public static TestDbContext Create(IUsuarioAtualService? usuarioAtualService = null)
     {
         var options = new DbContextOptionsBuilder<TestDbContext>()
             .UseInMemoryDatabase(Guid.NewGuid().ToString())
             .Options;
 
-        return new TestDbContext(options, currentUserService ?? new FakeCurrentUserService());
+        return new TestDbContext(options, usuarioAtualService ?? new FakeUsuarioAtualService { RestauranteId = DadosTeste.RestauranteId });
     }
 }

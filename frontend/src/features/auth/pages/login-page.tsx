@@ -24,7 +24,7 @@ import {
 
 export function LoginPage() {
   const form = useForm<LoginRequest>({
-    defaultValues: { email: "", password: "" },
+    defaultValues: { email: "", senha: "" },
   });
 
   const loginMutation = useLogin();
@@ -79,7 +79,7 @@ export function LoginPage() {
 
               <FormField
                 control={form.control}
-                name="password"
+                name="senha"
                 rules={{ required: "A senha é obrigatória." }}
                 render={({ field }) => (
                   <FormItem>

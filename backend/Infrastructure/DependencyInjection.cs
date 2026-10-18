@@ -4,8 +4,10 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using RestauranteEstoque.Application.Abstractions.Repositories;
 using RestauranteEstoque.Application.Abstractions.Services;
+using RestauranteEstoque.Infrastructure.EnvioEmail;
 using RestauranteEstoque.Infrastructure.Identity;
 using RestauranteEstoque.Infrastructure.Persistence;
+using RestauranteEstoque.Infrastructure.Persistence.Interceptors;
 using RestauranteEstoque.Infrastructure.Persistence.Repositories;
 using RestauranteEstoque.Infrastructure.Security;
 using RestauranteEstoque.Infrastructure.Time;
@@ -18,9 +20,12 @@ public static class DependencyInjection
     {
         var connectionString = configuration.GetConnectionString("DefaultConnection");
 
-        services.AddDbContext<AppDbContext>(options =>
+        services.AddScoped<PublicarEventosDominioInterceptor>();
+
+        services.AddDbContext<AppDbContext>((serviceProvider, options) =>
             options.UseSqlServer(connectionString)
-                .UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking));
+                .UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking)
+                .AddInterceptors(serviceProvider.GetRequiredService<PublicarEventosDominioInterceptor>()));
 
         services.AddScoped<IApplicationDbContext>(provider =>
             provider.GetRequiredService<AppDbContext>());
@@ -38,22 +43,26 @@ public static class DependencyInjection
 
         services.AddScoped<IIdentityService, IdentityService>();
 
-        services.AddScoped<IProductRepository, ProductRepository>();
-        services.AddScoped<ICategoryRepository, CategoryRepository>();
-        services.AddScoped<ISupplierRepository, SupplierRepository>();
-        services.AddScoped<IStockMovementRepository, StockMovementRepository>();
+        services.AddScoped<IProdutoRepository, ProdutoRepository>();
+        services.AddScoped<ICategoriaRepository, CategoriaRepository>();
+        services.AddScoped<IFornecedorRepository, FornecedorRepository>();
+        services.AddScoped<IMovimentacaoEstoqueRepository, MovimentacaoEstoqueRepository>();
 
-        services.AddScoped<IRestaurantRepository, RestaurantRepository>();
+        services.AddScoped<IRestauranteRepository, RestauranteRepository>();
 
         services.Configure<JwtSettings>(configuration.GetSection(JwtSettings.SectionName));
 
         services.AddScoped<IJwtTokenGenerator, JwtTokenGenerator>();
 
         services.AddHttpContextAccessor();
-        services.AddScoped<ICurrentUserService, CurrentUserService>();
+        services.AddScoped<IUsuarioAtualService, UsuarioAtualService>();
 
         services.AddSingleton(TimeProvider.System);
-        services.AddSingleton<IClock, Clock>();
+        services.AddSingleton<IRelogio, Relogio>();
+
+        services.AddScoped<IOutboxEmailRepository, OutboxEmailRepository>();
+        services.Configure<EmailSettings>(configuration.GetSection(EmailSettings.SectionName));
+        services.AddScoped<IEmailService, SmtpEmailService>();
 
         return services;
     }

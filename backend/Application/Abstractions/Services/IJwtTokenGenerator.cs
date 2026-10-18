@@ -2,5 +2,5 @@ namespace RestauranteEstoque.Application.Abstractions.Services;
 
 public interface IJwtTokenGenerator
 {
-    string GenerateToken(Guid userId, string name, string email, IEnumerable<string> roles, Guid? restaurantId);
+    string GerarToken(Guid usuarioId, string nome, string email, IEnumerable<string> roles, Guid? restauranteId);
 }

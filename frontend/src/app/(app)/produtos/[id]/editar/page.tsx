@@ -1,1 +1,1 @@
-export { EditProductPage as default } from "@/features/products/pages/edit-product-page";
+export { EditarProdutoPage as default } from "@/features/produtos/pages/editar-produto-page";

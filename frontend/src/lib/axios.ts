@@ -18,7 +18,7 @@ api.interceptors.request.use((config) => {
   return config;
 });
 
-const AUTH_PUBLIC_PATHS = ["/auth/login", "/auth/register"];
+const AUTH_PUBLIC_PATHS = ["/auth/login", "/auth/registrar"];
 
 api.interceptors.response.use(
   (response) => response,

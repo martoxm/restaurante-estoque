@@ -1,1 +1,1 @@
-export { NewSupplierPage as default } from "@/features/suppliers/pages/new-supplier-page";
+export { NovoFornecedorPage as default } from "@/features/fornecedores/pages/novo-fornecedor-page";

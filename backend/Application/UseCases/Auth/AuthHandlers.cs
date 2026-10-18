@@ -22,51 +22,51 @@ public class LoginHandler : IRequestHandler<LoginCommand, LoginResponse>
     {
         var email = request.Email.Trim().ToLowerInvariant();
 
-        var user = await _identityService.ValidateCredentialsAsync(email, request.Password, cancellationToken);
+        var usuario = await _identityService.ValidarCredenciaisAsync(email, request.Senha, cancellationToken);
 
-        if (user is null)
-            throw new InvalidCredentialsException();
+        if (usuario is null)
+            throw new CredenciaisInvalidasException();
 
-        var roles = await _identityService.GetRolesAsync(user.Id, cancellationToken);
-        var token = _jwtTokenGenerator.GenerateToken(user.Id, user.Name, user.Email, roles, user.RestaurantId);
+        var roles = await _identityService.ObterRolesAsync(usuario.Id, cancellationToken);
+        var token = _jwtTokenGenerator.GerarToken(usuario.Id, usuario.Nome, usuario.Email, roles, usuario.RestauranteId);
 
-        return new LoginResponse(token, user.Name, user.Email);
+        return new LoginResponse(token, usuario.Nome, usuario.Email);
     }
 }
 
-public class RegisterHandler : IRequestHandler<RegisterCommand, LoginResponse>
+public class RegistrarHandler : IRequestHandler<RegistrarCommand, LoginResponse>
 {
     private readonly IIdentityService _identityService;
     private readonly IJwtTokenGenerator _jwtTokenGenerator;
-    private readonly IRestaurantRepository _restaurantRepository;
+    private readonly IRestauranteRepository _restauranteRepository;
     private readonly IApplicationDbContext _context;
-    private readonly IClock _clock;
+    private readonly IRelogio _relogio;
 
-    public RegisterHandler(
+    public RegistrarHandler(
         IIdentityService identityService,
         IJwtTokenGenerator jwtTokenGenerator,
-        IRestaurantRepository restaurantRepository,
+        IRestauranteRepository restauranteRepository,
         IApplicationDbContext context,
-        IClock clock)
+        IRelogio relogio)
     {
         _identityService = identityService;
         _jwtTokenGenerator = jwtTokenGenerator;
-        _restaurantRepository = restaurantRepository;
+        _restauranteRepository = restauranteRepository;
         _context = context;
-        _clock = clock;
+        _relogio = relogio;
     }
 
-    public async Task<LoginResponse> Handle(RegisterCommand request, CancellationToken cancellationToken)
+    public async Task<LoginResponse> Handle(RegistrarCommand request, CancellationToken cancellationToken)
     {
-        var restaurant = Restaurant.Create(request.RestaurantName, _clock.UtcNow);
-        _restaurantRepository.Add(restaurant);
+        var restaurante = Restaurante.Criar(request.NomeRestaurante, _relogio.AgoraUtc);
+        _restauranteRepository.Adicionar(restaurante);
         await _context.SaveChangesAsync(cancellationToken);
 
-        var userId = await _identityService.CreateUserAsync(request.Name, request.Email, request.Password, restaurant.Id, cancellationToken);
-        var roles = await _identityService.GetRolesAsync(userId, cancellationToken);
+        var usuarioId = await _identityService.CriarUsuarioAsync(request.Nome, request.Email, request.Senha, restaurante.Id, cancellationToken);
+        var roles = await _identityService.ObterRolesAsync(usuarioId, cancellationToken);
 
-        var token = _jwtTokenGenerator.GenerateToken(userId, request.Name, request.Email, roles, restaurant.Id);
+        var token = _jwtTokenGenerator.GerarToken(usuarioId, request.Nome, request.Email, roles, restaurante.Id);
 
-        return new LoginResponse(token, request.Name, request.Email);
+        return new LoginResponse(token, request.Nome, request.Email);
     }
 }

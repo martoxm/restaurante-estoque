@@ -1,6 +1,6 @@
 namespace RestauranteEstoque.Contracts.Auth;
 
-public record LoginResponse(string Token, string Name, string Email);
+public record LoginResponse(string Token, string Nome, string Email);
 
 public static class RoleNames
 {

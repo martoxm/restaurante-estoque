@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk.Web">
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
 
   <ItemGroup>
     <ProjectReference Include="..\Application\RestauranteEstoque.Application.csproj" />
@@ -21,6 +21,7 @@
     <TargetFramework>net10.0</TargetFramework>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
+    <UserSecretsId>f5904ef8-bbd2-4b18-9739-9894f5062f18</UserSecretsId>
   </PropertyGroup>
 
 </Project>

@@ -1,19 +1,19 @@
 export interface LoginRequest {
   email: string;
-  password: string;
+  senha: string;
 }
 
 export interface LoginResponse {
   token: string;
-  name: string;
+  nome: string;
   email: string;
 }
 
-export interface RegisterRequest {
-  name: string;
+export interface RegistrarRequest {
+  nome: string;
   email: string;
-  password: string;
-  restaurantName: string;
+  senha: string;
+  nomeRestaurante: string;
 }
 
 
@@ -23,6 +23,6 @@ export const ROLE_CLAIM =
 export interface DecodedToken {
   sub: string;
   email: string;
-  restaurantId?: string;
+  restauranteId?: string;
   [claim: string]: unknown;
 }

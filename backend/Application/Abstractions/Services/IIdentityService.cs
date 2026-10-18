@@ -1,14 +1,16 @@
 namespace RestauranteEstoque.Application.Abstractions.Services;
 
-public record AuthenticatedUser(Guid Id, string Name, string Email, Guid? RestaurantId);
+public record UsuarioAutenticado(Guid Id, string Nome, string Email, Guid? RestauranteId);
 
 public interface IIdentityService
 {
-    Task<bool> EmailExistsAsync(string email, CancellationToken cancellationToken);
+    Task<bool> EmailExisteAsync(string email, CancellationToken cancellationToken);
 
-    Task<Guid> CreateUserAsync(string name, string email, string password, Guid restaurantId, CancellationToken cancellationToken);
+    Task<Guid> CriarUsuarioAsync(string nome, string email, string senha, Guid restauranteId, CancellationToken cancellationToken);
 
-    Task<AuthenticatedUser?> ValidateCredentialsAsync(string email, string password, CancellationToken cancellationToken);
+    Task<UsuarioAutenticado?> ValidarCredenciaisAsync(string email, string senha, CancellationToken cancellationToken);
 
-    Task<IReadOnlyList<string>> GetRolesAsync(Guid userId, CancellationToken cancellationToken);
+    Task<IReadOnlyList<string>> ObterRolesAsync(Guid usuarioId, CancellationToken cancellationToken);
+
+    Task<IReadOnlyList<string>> ListarEmailsAdminsAsync(Guid restauranteId, CancellationToken cancellationToken);
 }

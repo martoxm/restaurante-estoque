@@ -1,1 +1,1 @@
-export { NewStockMovementPage as default } from "@/features/stock-movements/pages/new-stock-movement-page";
+export { NovaMovimentacaoEstoquePage as default } from "@/features/movimentacoes-estoque/pages/nova-movimentacao-estoque-page";

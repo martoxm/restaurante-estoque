@@ -1,1 +1,1 @@
-export { EditSupplierPage as default } from "@/features/suppliers/pages/edit-supplier-page";
+export { EditarFornecedorPage as default } from "@/features/fornecedores/pages/editar-fornecedor-page";

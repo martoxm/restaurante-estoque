@@ -15,7 +15,7 @@ GO
 
 SELECT
     u.Email,
-    u.Name,
+    u.Nome,
     r.Name AS Role
 FROM AspNetUsers u
 LEFT JOIN AspNetUserRoles ur ON ur.UserId = u.Id

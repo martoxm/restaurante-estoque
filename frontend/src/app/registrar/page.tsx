@@ -1,1 +1,1 @@
-export { RegisterPage as default } from "@/features/auth/pages/register-page";
+export { RegistrarPage as default } from "@/features/auth/pages/registrar-page";

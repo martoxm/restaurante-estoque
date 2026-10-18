@@ -7,6 +7,7 @@ using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi;
 using RestauranteEstoque.Api.Middleware;
 using RestauranteEstoque.Api.Modules;
+using RestauranteEstoque.Api.Workers;
 using RestauranteEstoque.Application;
 using RestauranteEstoque.Contracts.Auth;
 using RestauranteEstoque.Infrastructure;
@@ -41,6 +42,8 @@ builder.Services.AddSwaggerGen(options =>
 
 builder.Services.AddApplication();
 builder.Services.AddInfrastructure(builder.Configuration);
+
+builder.Services.AddHostedService<EnvioEmailOutboxWorker>();
 
 builder.Services.AddApiVersioning(options =>
 {
@@ -121,12 +124,12 @@ app.MapGet("/", () => "API Controle de Estoque de Restaurante no ar!");
 
 IEndpointModule[] endpointModules =
 [
-    new ProductEndpointsModule(),
-    new CategoryEndpointsModule(),
-    new SupplierEndpointsModule(),
-    new StockMovementEndpointsModule(),
+    new ProdutoEndpointsModule(),
+    new CategoriaEndpointsModule(),
+    new FornecedorEndpointsModule(),
+    new MovimentacaoEstoqueEndpointsModule(),
     new AuthEndpointsModule(),
-    new RestaurantEndpointsModule()
+    new RestauranteEndpointsModule()
 ];
 
 foreach (var module in endpointModules)

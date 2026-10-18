@@ -1,63 +1,63 @@
 import { useMemo } from "react";
-import { useProducts } from "@/features/products/hooks/useProducts";
-import { useCategories } from "@/features/categories/hooks/useCategories";
+import { useProdutos } from "@/features/produtos/hooks/useProdutos";
+import { useCategorias } from "@/features/categorias/hooks/useCategorias";
 
-export interface CategoryDistributionItem {
-  category: string;
-  products: number;
+export interface DistribuicaoCategoriaItem {
+  categoria: string;
+  produtos: number;
   fill: string;
 }
 
-export interface StockByCategoryItem {
-  category: string;
-  quantity: number;
+export interface EstoquePorCategoriaItem {
+  categoria: string;
+  quantidade: number;
   fill: string;
 }
 
 export function useDashboardCharts() {
   const {
-    data: products,
-    isLoading: isLoadingProducts,
-    isError: isErrorProducts,
-  } = useProducts({ pageSize: 100 });
+    data: produtos,
+    isLoading: isLoadingProdutos,
+    isError: isErrorProdutos,
+  } = useProdutos({ tamanhoPagina: 100 });
   const {
-    data: categories,
-    isLoading: isLoadingCategories,
-    isError: isErrorCategories,
-  } = useCategories();
+    data: categorias,
+    isLoading: isLoadingCategorias,
+    isError: isErrorCategorias,
+  } = useCategorias();
 
-  const categoryDistribution = useMemo<CategoryDistributionItem[]>(() => {
-    if (!categories) return [];
+  const distribuicaoCategorias = useMemo<DistribuicaoCategoriaItem[]>(() => {
+    if (!categorias) return [];
 
-    return categories.items
-      .filter((category) => category.productCount > 0)
-      .map((category, index) => ({
-        category: category.name,
-        products: category.productCount,
+    return categorias.itens
+      .filter((categoria) => categoria.quantidadeProdutos > 0)
+      .map((categoria, index) => ({
+        categoria: categoria.nome,
+        produtos: categoria.quantidadeProdutos,
         fill: `var(--chart-${(index % 5) + 1})`,
       }));
-  }, [categories]);
+  }, [categorias]);
 
-  const stockByCategory = useMemo<StockByCategoryItem[]>(() => {
-    if (!products) return [];
+  const estoquePorCategoria = useMemo<EstoquePorCategoriaItem[]>(() => {
+    if (!produtos) return [];
 
-    const totals = new Map<string, number>();
-    for (const product of products.items) {
-      const current = totals.get(product.categoryName) ?? 0;
-      totals.set(product.categoryName, current + product.quantityInStock);
+    const totais = new Map<string, number>();
+    for (const produto of produtos.itens) {
+      const current = totais.get(produto.nomeCategoria) ?? 0;
+      totais.set(produto.nomeCategoria, current + produto.quantidadeEmEstoque);
     }
 
-    return [...totals.entries()].map(([category, quantity], index) => ({
-      category,
-      quantity,
+    return [...totais.entries()].map(([categoria, quantidade], index) => ({
+      categoria,
+      quantidade,
       fill: `var(--chart-${(index % 5) + 1})`,
     }));
-  }, [products]);
+  }, [produtos]);
 
   return {
-    categoryDistribution,
-    stockByCategory,
-    isLoading: isLoadingProducts || isLoadingCategories,
-    isError: isErrorProducts || isErrorCategories,
+    distribuicaoCategorias,
+    estoquePorCategoria,
+    isLoading: isLoadingProdutos || isLoadingCategorias,
+    isError: isErrorProdutos || isErrorCategorias,
   };
 }

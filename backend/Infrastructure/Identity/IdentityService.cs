@@ -15,56 +15,67 @@ public class IdentityService : IIdentityService
         _userManager = userManager;
     }
 
-    public async Task<bool> EmailExistsAsync(string email, CancellationToken cancellationToken)
+    public async Task<bool> EmailExisteAsync(string email, CancellationToken cancellationToken)
     {
-        var user = await _userManager.FindByEmailAsync(email);
-        return user is not null;
+        var usuario = await _userManager.FindByEmailAsync(email);
+        return usuario is not null;
     }
 
-    public async Task<Guid> CreateUserAsync(string name, string email, string password, Guid restaurantId, CancellationToken cancellationToken)
+    public async Task<Guid> CriarUsuarioAsync(string nome, string email, string senha, Guid restauranteId, CancellationToken cancellationToken)
     {
-        var user = new ApplicationUser
+        var usuario = new ApplicationUser
         {
             Id = Guid.NewGuid(),
             UserName = email,
             Email = email,
-            Name = name,
-            RestaurantId = restaurantId
+            Nome = nome,
+            RestauranteId = restauranteId
         };
 
-        var result = await _userManager.CreateAsync(user, password);
+        var result = await _userManager.CreateAsync(usuario, senha);
 
         if (!result.Succeeded)
         {
             var failures = result.Errors
-                .Select(error => new ValidationFailure(nameof(password), error.Description));
+                .Select(error => new ValidationFailure(nameof(senha), error.Description));
 
             throw new ValidationException(failures);
         }
 
-        await _userManager.AddToRoleAsync(user, RoleNames.Funcionario);
+        await _userManager.AddToRoleAsync(usuario, RoleNames.Funcionario);
 
-        return user.Id;
+        return usuario.Id;
     }
 
-    public async Task<AuthenticatedUser?> ValidateCredentialsAsync(string email, string password, CancellationToken cancellationToken)
+    public async Task<UsuarioAutenticado?> ValidarCredenciaisAsync(string email, string senha, CancellationToken cancellationToken)
     {
-        var user = await _userManager.FindByEmailAsync(email);
+        var usuario = await _userManager.FindByEmailAsync(email);
 
-        if (user is null || !await _userManager.CheckPasswordAsync(user, password))
+        if (usuario is null || !await _userManager.CheckPasswordAsync(usuario, senha))
             return null;
 
-        return new AuthenticatedUser(user.Id, user.Name, user.Email!, user.RestaurantId);
+        return new UsuarioAutenticado(usuario.Id, usuario.Nome, usuario.Email!, usuario.RestauranteId);
     }
 
-    public async Task<IReadOnlyList<string>> GetRolesAsync(Guid userId, CancellationToken cancellationToken)
+    public async Task<IReadOnlyList<string>> ObterRolesAsync(Guid usuarioId, CancellationToken cancellationToken)
     {
-        var user = await _userManager.FindByIdAsync(userId.ToString());
+        var usuario = await _userManager.FindByIdAsync(usuarioId.ToString());
 
-        if (user is null)
+        if (usuario is null)
             return [];
 
-        var roles = await _userManager.GetRolesAsync(user);
+        var roles = await _userManager.GetRolesAsync(usuario);
         return roles.ToList();
+    }
+
+    public async Task<IReadOnlyList<string>> ListarEmailsAdminsAsync(Guid restauranteId, CancellationToken cancellationToken)
+    {
+        var admins = await _userManager.GetUsersInRoleAsync(RoleNames.Admin);
+
+        return admins
+            .Where(usuario => usuario.RestauranteId == restauranteId && !string.IsNullOrWhiteSpace(usuario.Email))
+            .Select(usuario => usuario.Email!)
+            .Distinct(StringComparer.OrdinalIgnoreCase)
+            .ToList();
     }
 }

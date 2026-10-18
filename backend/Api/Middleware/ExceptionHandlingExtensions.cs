@@ -27,19 +27,28 @@ public static class ExceptionHandlingExtensions
                     return;
                 }
 
-                if (exception is InvalidCredentialsException invalidCredentialsException)
+                if (exception is CredenciaisInvalidasException credenciaisInvalidasException)
                 {
                     await Results.Problem(
-                        detail: invalidCredentialsException.Message,
+                        detail: credenciaisInvalidasException.Message,
                         statusCode: StatusCodes.Status401Unauthorized)
                         .ExecuteAsync(context);
                     return;
                 }
 
-                if (exception is NotFoundException notFoundException)
+                if (exception is SessaoInvalidaException sessaoInvalidaException)
                 {
                     await Results.Problem(
-                        detail: notFoundException.Message,
+                        detail: sessaoInvalidaException.Message,
+                        statusCode: StatusCodes.Status401Unauthorized)
+                        .ExecuteAsync(context);
+                    return;
+                }
+
+                if (exception is NaoEncontradoException naoEncontradoException)
+                {
+                    await Results.Problem(
+                        detail: naoEncontradoException.Message,
                         statusCode: StatusCodes.Status404NotFound)
                         .ExecuteAsync(context);
                     return;

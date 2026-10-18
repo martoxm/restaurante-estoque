@@ -1,1 +1,1 @@
-export { EditCategoryPage as default } from "@/features/categories/pages/edit-category-page";
+export { EditarCategoriaPage as default } from "@/features/categorias/pages/editar-categoria-page";
