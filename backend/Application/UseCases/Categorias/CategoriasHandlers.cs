@@ -108,12 +108,7 @@ public class ListarCategoriasHandler : IRequestHandler<ListarCategoriasQuery, Re
             cancellationToken);
 
         var itens = categorias
-            .Select(categoria => new CategoriaItemListaDto(
-                categoria.Id,
-                categoria.Nome,
-                categoria.Descricao,
-                categoria.Produtos.Count,
-                categoria.CriadoEm))
+            .Select(categoria => categoria.ParaItemListaDto())
             .ToList();
 
         return new ResultadoPaginado<CategoriaItemListaDto>(itens, request.Pagina, request.TamanhoPagina, totalItens);
@@ -136,11 +131,23 @@ public class ObterCategoriaPorIdHandler : IRequestHandler<ObterCategoriaPorIdQue
         if (categoria is null)
             return null;
 
-        return new CategoriaDetalhesDto(
-            categoria.Id,
-            categoria.Nome,
-            categoria.Descricao,
-            categoria.Produtos.Count,
-            categoria.CriadoEm);
+        return categoria.ParaDetalhesDto();
     }
+}
+
+file static class CategoriaMapeamentos
+{
+    public static CategoriaDetalhesDto ParaDetalhesDto(this Categoria categoria) => new(
+        categoria.Id,
+        categoria.Nome,
+        categoria.Descricao,
+        categoria.Produtos.Count,
+        categoria.CriadoEm);
+
+    public static CategoriaItemListaDto ParaItemListaDto(this Categoria categoria) => new(
+        categoria.Id,
+        categoria.Nome,
+        categoria.Descricao,
+        categoria.Produtos.Count,
+        categoria.CriadoEm);
 }

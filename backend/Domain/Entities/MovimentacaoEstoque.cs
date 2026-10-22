@@ -19,7 +19,7 @@ public class MovimentacaoEstoque : Entity
     {
     }
 
-    public static MovimentacaoEstoque Criar(Guid restauranteId, Guid produtoId, TipoMovimentacaoEstoque tipo, Quantidade quantidade, DateTime dataMovimentacao, string? observacoes = null)
+    internal static MovimentacaoEstoque Criar(Guid restauranteId, Guid produtoId, TipoMovimentacaoEstoque tipo, Quantidade quantidade, DateTime dataMovimentacao, string? observacoes = null)
     {
         if (restauranteId == Guid.Empty)
             throw new DomainException("A movimentação precisa pertencer a um restaurante.");

@@ -18,6 +18,9 @@ public class AppDbContext : IdentityDbContext<ApplicationUser, ApplicationRole, 
 
     private Guid? RestauranteIdAtual => _usuarioAtualService.RestauranteId;
 
+    public async Task<ITransacao> IniciarTransacaoAsync(CancellationToken cancellationToken) =>
+        new TransacaoEfCore(await Database.BeginTransactionAsync(cancellationToken));
+
     public DbSet<Categoria> Categorias => Set<Categoria>();
     public DbSet<Produto> Produtos => Set<Produto>();
     public DbSet<MovimentacaoEstoque> MovimentacoesEstoque => Set<MovimentacaoEstoque>();

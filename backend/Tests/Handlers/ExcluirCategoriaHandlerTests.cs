@@ -33,7 +33,7 @@ public class ExcluirCategoriaHandlerTests
         using var context = TestDbContextFactory.Create();
         var categoria = Categoria.Criar(DadosTeste.RestauranteId, "Grãos", CriadoEm);
         context.Categorias.Add(categoria);
-        context.Produtos.Add(Produto.Criar(DadosTeste.RestauranteId, "Arroz", null, Dinheiro.Criar(10m), categoria.Id, CriadoEm));
+        context.Produtos.Add(Produto.Criar(DadosTeste.RestauranteId, "Arroz", null, Dinheiro.Criar(10m), categoria, CriadoEm));
         await context.SaveChangesAsync();
         context.ChangeTracker.Clear();
 

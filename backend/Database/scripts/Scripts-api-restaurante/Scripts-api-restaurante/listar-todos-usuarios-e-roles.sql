@@ -1,13 +1,14 @@
 -- =============================================================
--- Consulta — Listar TODOS os usuários e suas roles
+-- Consulta — Aqui a gente lista TODOS os usuários e as roles de cada um.
 --
--- Só leitura (SELECT) — não altera nada no banco. Versão "sem filtro" da
--- buscar-usuario-por-email.sql: útil pra ter uma visão geral de quem é
--- Admin, quem é Funcionario, e quem ainda não tem role nenhuma (não deveria
--- acontecer com usuários criados via /register desde a Etapa 27, mas pode
--- acontecer com usuários antigos, criados antes disso).
+-- É só leitura (SELECT), não altera nada no banco. Pensa nela como a versão
+-- "sem filtro" da buscar-usuario-por-email.sql: serve pra ter uma visão
+-- geral de quem é Admin, quem é Funcionario e quem ainda não tem role
+-- nenhuma. Esse último caso não deveria acontecer com quem foi criado via
+-- /register desde a Etapa 27, mas pode aparecer com usuário antigo, criado
+-- antes disso.
 --
--- Como rodar: execute direto (F5), sem precisar editar nada.
+-- Pra rodar: é só executar direto (F5), sem precisar editar nada.
 -- =============================================================
 
 USE RestauranteEstoqueDb;

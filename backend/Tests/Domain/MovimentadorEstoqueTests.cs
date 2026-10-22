@@ -11,7 +11,7 @@ public class MovimentadorEstoqueTests
     private static readonly DateTime Data = new(2026, 1, 1, 12, 0, 0, DateTimeKind.Utc);
 
     private static Produto CriarProdutoComEstoque(int quantidade) =>
-        Produto.Criar(DadosTeste.RestauranteId, "Arroz", null, Dinheiro.Criar(10m), Guid.NewGuid(), Data, quantidadeInicial: Quantidade.Criar(quantidade));
+        Produto.Criar(DadosTeste.RestauranteId, "Arroz", null, Dinheiro.Criar(10m), DadosTeste.CriarCategoria(), Data, quantidadeInicial: Quantidade.Criar(quantidade));
 
     [Fact]
     public void Movimentar_Entrada_DeveAumentarEstoqueERegistrarMovimentacao()
@@ -71,7 +71,7 @@ public class MovimentadorEstoqueTests
     public void Movimentar_DeveUsarORestauranteDoProduto()
     {
         var restauranteDoProduto = Guid.NewGuid();
-        var produto = Produto.Criar(restauranteDoProduto, "Arroz", null, Dinheiro.Criar(10m), Guid.NewGuid(), Data, Quantidade.Criar(5));
+        var produto = Produto.Criar(restauranteDoProduto, "Arroz", null, Dinheiro.Criar(10m), DadosTeste.CriarCategoria(restauranteDoProduto), Data, Quantidade.Criar(5));
 
         var movimentacao = MovimentadorEstoque.Movimentar(produto, TipoMovimentacaoEstoque.Entrada, Quantidade.Criar(1), Data);
 

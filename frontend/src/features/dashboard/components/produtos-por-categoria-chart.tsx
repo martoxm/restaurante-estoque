@@ -40,10 +40,10 @@ export function ProdutosPorCategoriaChart({
           </p>
         ) : (
           <div className="flex flex-col items-center gap-4 sm:flex-row">
-            {/* Dentro de um flex row (chart + legenda lado a lado), o
-                ResponsiveContainer do Recharts precisa de uma largura
-                explícita — sem isso, ele mede "0px de largura disponível"
-                e o gráfico simplesmente não desenha nada. */}
+            {/* Repara que aqui a gente está dentro de um flex row (gráfico +
+                legenda lado a lado). Nesse caso o ResponsiveContainer do
+                Recharts precisa de uma largura explícita — sem isso ele mede
+                "0px de largura disponível" e o gráfico não desenha nada. */}
             <ChartContainer config={chartConfig} className="h-64 w-64 shrink-0">
               <PieChart>
                 <ChartTooltip content={<ChartTooltipContent nameKey="categoria" />} />
@@ -62,10 +62,10 @@ export function ProdutosPorCategoriaChart({
               </PieChart>
             </ChartContainer>
 
-            {/* Legenda ao lado do gráfico — construída direto a partir de
-                `data` (não do payload do Recharts) porque cada categoria é
-                dinâmica, e a lista deixa claro qual cor é qual categoria sem
-                precisar passar o mouse em cima da fatia. */}
+            {/* Essa é a legenda do lado do gráfico. A gente monta ela direto
+                a partir de `data` (e não do payload do Recharts) porque as
+                categorias são dinâmicas. Assim a lista deixa claro qual cor é
+                qual categoria, sem precisar passar o mouse em cima da fatia. */}
             <ul className="flex w-full flex-col gap-2 sm:w-auto">
               {data.map((entry) => (
                 <li key={entry.categoria} className="flex items-center gap-2 text-sm">

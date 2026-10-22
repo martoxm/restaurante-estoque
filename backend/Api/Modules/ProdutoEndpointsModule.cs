@@ -25,7 +25,9 @@ public class ProdutoEndpointsModule : IEndpointModule
             .WithName("CriarProduto")
             .WithSummary("Cria um novo produto")
             .WithDescription("Cria um produto vinculado a uma categoria existente, com uma quantidade inicial opcional em estoque.")
-            .Produces<ProdutoCriadoResponse>(StatusCodes.Status201Created);
+            .Produces<ProdutoCriadoResponse>(StatusCodes.Status201Created)
+            .Produces(StatusCodes.Status400BadRequest)
+            .Produces(StatusCodes.Status404NotFound);
 
         group.MapGet("", ListarProdutos)
             .WithName("ListarProdutos")

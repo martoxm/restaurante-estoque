@@ -23,33 +23,33 @@ public class Produto : Entity
     {
     }
 
-    public static Produto Criar(Guid restauranteId, string nome, string? descricao, Dinheiro preco, Guid categoriaId, DateTime criadoEm, Quantidade? quantidadeInicial = null)
+    public static Produto Criar(Guid restauranteId, string nome, string? descricao, Dinheiro preco, Categoria categoria, DateTime criadoEm, Quantidade? quantidadeInicial = null)
     {
         ValidarRestauranteId(restauranteId);
         ValidarNome(nome);
-        ValidarCategoriaId(categoriaId);
+        ValidarCategoria(categoria, restauranteId);
 
         return new Produto
         {
             Nome = nome.Trim(),
             Descricao = descricao?.Trim(),
             Preco = preco,
-            CategoriaId = categoriaId,
+            CategoriaId = categoria.Id,
             QuantidadeEmEstoque = quantidadeInicial ?? Quantidade.Zero,
             RestauranteId = restauranteId,
             CriadoEm = criadoEm
         };
     }
 
-    public void Atualizar(string nome, string? descricao, Dinheiro preco, Guid categoriaId)
+    public void Atualizar(string nome, string? descricao, Dinheiro preco, Categoria categoria)
     {
         ValidarNome(nome);
-        ValidarCategoriaId(categoriaId);
+        ValidarCategoria(categoria, RestauranteId);
 
         Nome = nome.Trim();
         Descricao = descricao?.Trim();
         Preco = preco;
-        CategoriaId = categoriaId;
+        CategoriaId = categoria.Id;
     }
 
     public void AumentarEstoque(Quantidade quantidade)
@@ -74,6 +74,12 @@ public class Produto : Entity
             RegistrarEvento(new EstoqueFicouBaixoEvent(Id, Nome, QuantidadeEmEstoque.Valor, RestauranteId));
     }
 
+    public void GarantirQuePodeSerExcluido(bool possuiMovimentacoes)
+    {
+        if (possuiMovimentacoes)
+            throw new DomainException("Não é possível excluir um produto que possui movimentações de estoque vinculadas.");
+    }
+
     private static void ValidarRestauranteId(Guid restauranteId)
     {
         if (restauranteId == Guid.Empty)
@@ -95,9 +101,12 @@ public class Produto : Entity
             throw new DomainException("O nome do produto deve ter no máximo 150 caracteres.");
     }
 
-    private static void ValidarCategoriaId(Guid categoriaId)
+    private static void ValidarCategoria(Categoria categoria, Guid restauranteId)
     {
-        if (categoriaId == Guid.Empty)
+        if (categoria is null)
             throw new DomainException("O produto precisa estar vinculado a uma categoria.");
+
+        if (categoria.RestauranteId != restauranteId)
+            throw new DomainException("A categoria precisa ser do mesmo restaurante do produto.");
     }
 }

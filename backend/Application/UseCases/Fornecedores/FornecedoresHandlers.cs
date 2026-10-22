@@ -104,12 +104,7 @@ public class ObterFornecedorPorIdHandler : IRequestHandler<ObterFornecedorPorIdQ
         if (fornecedor is null)
             return null;
 
-        return new FornecedorDetalhesDto(
-            fornecedor.Id,
-            fornecedor.Nome,
-            fornecedor.Telefone,
-            fornecedor.Email?.Valor,
-            fornecedor.CriadoEm);
+        return fornecedor.ParaDetalhesDto();
     }
 }
 
@@ -132,14 +127,26 @@ public class ListarFornecedoresHandler : IRequestHandler<ListarFornecedoresQuery
             cancellationToken);
 
         var itens = fornecedores
-            .Select(fornecedor => new FornecedorItemListaDto(
-                fornecedor.Id,
-                fornecedor.Nome,
-                fornecedor.Telefone,
-                fornecedor.Email?.Valor,
-                fornecedor.CriadoEm))
+            .Select(fornecedor => fornecedor.ParaItemListaDto())
             .ToList();
 
         return new ResultadoPaginado<FornecedorItemListaDto>(itens, request.Pagina, request.TamanhoPagina, totalItens);
     }
+}
+
+file static class FornecedorMapeamentos
+{
+    public static FornecedorDetalhesDto ParaDetalhesDto(this Fornecedor fornecedor) => new(
+        fornecedor.Id,
+        fornecedor.Nome,
+        fornecedor.Telefone,
+        fornecedor.Email?.Valor,
+        fornecedor.CriadoEm);
+
+    public static FornecedorItemListaDto ParaItemListaDto(this Fornecedor fornecedor) => new(
+        fornecedor.Id,
+        fornecedor.Nome,
+        fornecedor.Telefone,
+        fornecedor.Email?.Valor,
+        fornecedor.CriadoEm);
 }

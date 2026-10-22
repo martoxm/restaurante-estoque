@@ -50,7 +50,7 @@ public class ObterRestaurantePorIdHandler : IRequestHandler<ObterRestaurantePorI
         if (restaurante is null)
             return null;
 
-        return new RestauranteDetalhesDto(restaurante.Id, restaurante.Nome, restaurante.CriadoEm);
+        return restaurante.ParaDetalhesDto();
     }
 }
 
@@ -73,9 +73,18 @@ public class ListarRestaurantesHandler : IRequestHandler<ListarRestaurantesQuery
             cancellationToken);
 
         var itens = restaurantes
-            .Select(restaurante => new RestauranteItemListaDto(restaurante.Id, restaurante.Nome, restaurante.CriadoEm))
+            .Select(restaurante => restaurante.ParaItemListaDto())
             .ToList();
 
         return new ResultadoPaginado<RestauranteItemListaDto>(itens, request.Pagina, request.TamanhoPagina, totalItens);
     }
+}
+
+file static class RestauranteMapeamentos
+{
+    public static RestauranteDetalhesDto ParaDetalhesDto(this Restaurante restaurante) =>
+        new(restaurante.Id, restaurante.Nome, restaurante.CriadoEm);
+
+    public static RestauranteItemListaDto ParaItemListaDto(this Restaurante restaurante) =>
+        new(restaurante.Id, restaurante.Nome, restaurante.CriadoEm);
 }

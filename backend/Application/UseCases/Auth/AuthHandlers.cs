@@ -58,11 +58,15 @@ public class RegistrarHandler : IRequestHandler<RegistrarCommand, LoginResponse>
 
     public async Task<LoginResponse> Handle(RegistrarCommand request, CancellationToken cancellationToken)
     {
+        await using var transacao = await _context.IniciarTransacaoAsync(cancellationToken);
+
         var restaurante = Restaurante.Criar(request.NomeRestaurante, _relogio.AgoraUtc);
         _restauranteRepository.Adicionar(restaurante);
         await _context.SaveChangesAsync(cancellationToken);
 
         var usuarioId = await _identityService.CriarUsuarioAsync(request.Nome, request.Email, request.Senha, restaurante.Id, cancellationToken);
+
+        await transacao.ConfirmarAsync(cancellationToken);
         var roles = await _identityService.ObterRolesAsync(usuarioId, cancellationToken);
 
         var token = _jwtTokenGenerator.GerarToken(usuarioId, request.Nome, request.Email, roles, restaurante.Id);

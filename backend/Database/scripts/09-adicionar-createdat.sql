@@ -1,57 +1,57 @@
 -- =============================================================
--- Etapa 32 — Adiciona a coluna CreatedAt em Products, Categories,
--- Suppliers e Restaurants
+-- Etapa 32 — Aqui a gente adiciona a coluna CreatedAt em Products,
+-- Categories, Suppliers e Restaurants.
 --
--- Como rodar no SQL Server Management Studio:
---   Conecte no banco RestauranteEstoqueDb, cole este arquivo inteiro e
---   aperte Executar (F5), uma vez só.
+-- Pra rodar no SQL Server Management Studio:
+--   Conecta no banco RestauranteEstoqueDb, cola este arquivo inteiro e
+--   aperta Executar (F5), uma vez só.
 --
--- Diferente do RestaurantId (Etapa 28), aqui a coluna já entra NOT NULL:
--- o DEFAULT GETUTCDATE() abaixo resolve o problema das linhas que já
--- existem (cada uma recebe a hora atual do servidor no momento do ALTER),
--- então não existe linha antiga sem valor pra quebrar o NOT NULL. Daqui
--- pra frente, todo Product/Category/Supplier/Restaurant novo é criado já
--- com CreatedAt de verdade (passado pelo Handler via IClock — nunca o
--- DEFAULT do banco, que só serve pra essas linhas antigas).
+-- Repara que, diferente do RestaurantId (Etapa 28), aqui a coluna já entra
+-- NOT NULL. Dá pra fazer isso porque o DEFAULT GETUTCDATE() lá embaixo
+-- resolve o problema das linhas que já existem: cada uma ganha a hora atual
+-- do servidor no momento do ALTER. Ou seja, não sobra linha antiga sem valor
+-- pra quebrar o NOT NULL. Daqui pra frente, todo Product/Category/Supplier/
+-- Restaurant novo já nasce com o CreatedAt de verdade, que o Handler passa
+-- via IClock — nunca pelo DEFAULT do banco, que só existe pra essas linhas antigas.
 -- =============================================================
 
 USE RestauranteEstoqueDb;
 GO
 
--- 1) Products
+-- 1) Começando pela Products
 IF NOT EXISTS (SELECT 1 FROM sys.columns WHERE object_id = OBJECT_ID('Products') AND name = 'CreatedAt')
 BEGIN
     ALTER TABLE Products ADD CreatedAt DATETIME2 NOT NULL DEFAULT GETUTCDATE();
 END
 GO
 
--- 2) Categories
+-- 2) Agora a Categories
 IF NOT EXISTS (SELECT 1 FROM sys.columns WHERE object_id = OBJECT_ID('Categories') AND name = 'CreatedAt')
 BEGIN
     ALTER TABLE Categories ADD CreatedAt DATETIME2 NOT NULL DEFAULT GETUTCDATE();
 END
 GO
 
--- 3) Suppliers
+-- 3) Depois a Suppliers
 IF NOT EXISTS (SELECT 1 FROM sys.columns WHERE object_id = OBJECT_ID('Suppliers') AND name = 'CreatedAt')
 BEGIN
     ALTER TABLE Suppliers ADD CreatedAt DATETIME2 NOT NULL DEFAULT GETUTCDATE();
 END
 GO
 
--- 4) Restaurants
+-- 4) E por fim a Restaurants
 IF NOT EXISTS (SELECT 1 FROM sys.columns WHERE object_id = OBJECT_ID('Restaurants') AND name = 'CreatedAt')
 BEGIN
     ALTER TABLE Restaurants ADD CreatedAt DATETIME2 NOT NULL DEFAULT GETUTCDATE();
 END
 GO
 
--- Fora de escopo de propósito (ver backend/docs/etapa-32-createdat.md):
--- StockMovements já tem MovementDate, que cumpre o mesmo papel; e
--- AspNetUsers é tabela do framework (Identity), fora da regra de script
--- manual deste projeto.
+-- Duas tabelas ficaram de fora de propósito (tem mais detalhe em
+-- backend/docs/etapa-32-createdat.md): a StockMovements, porque ela já tem
+-- o MovementDate, que faz o mesmo papel; e a AspNetUsers, porque é tabela
+-- do framework (Identity) e fica fora da regra de script manual deste projeto.
 
--- Conferir o resultado (4 tabelas, cada uma com a coluna CreatedAt nova)
+-- Agora a gente confere: têm que aparecer 4 tabelas, cada uma com a coluna CreatedAt nova
 SELECT
     t.name  AS Tabela,
     c.name  AS Coluna,

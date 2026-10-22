@@ -1,32 +1,33 @@
 -- =============================================================
--- Etapa 3 — Criação manual do banco e das tabelas (sem EF Core Migrations)
+-- Etapa 3 — Aqui a gente cria o banco e as tabelas na mão, sem usar as
+-- Migrations do EF Core.
 --
--- Como rodar no SQL Server Management Studio:
---   1. Conecte no seu servidor local (o da sua print: "localhost (SQL
+-- Pra rodar no SQL Server Management Studio, é assim:
+--   1. Conecta no seu servidor local (aquele da sua print: "localhost (SQL
 --      Server ... DESKTOP-ASSF0I8\usuario)").
---   2. Clique em "Nova Consulta" com esse servidor selecionado
---      (importante: NÃO precisa estar dentro de nenhum banco específico
---      para rodar o PASSO 1 — ele mesmo vai criar o banco).
---   3. Cole este arquivo inteiro e aperte Executar (F5), uma vez só.
---   4. Atualize (F5 / botão direito > Atualizar) a pasta "Bancos de
---      Dados" no Object Explorer: vai aparecer "RestauranteEstoqueDb"
---      do lado de "ProverContatos".
+--   2. Clica em "Nova Consulta" com esse servidor selecionado. Repara que
+--      NÃO precisa estar dentro de nenhum banco específico pra rodar o
+--      PASSO 1 — é ele mesmo que vai criar o banco.
+--   3. Cola este arquivo inteiro e aperta Executar (F5), uma vez só.
+--   4. Depois atualiza (F5 / botão direito > Atualizar) a pasta "Bancos de
+--      Dados" no Object Explorer: o "RestauranteEstoqueDb" vai aparecer
+--      do lado do "ProverContatos".
 -- =============================================================
 
 
 -- =============================================================
--- PASSO 1 — Criar o banco de dados novo
+-- PASSO 1 — Primeiro a gente cria o banco de dados novo
 -- =============================================================
--- CREATE DATABASE cria dois arquivos físicos no disco (na pasta padrão
--- de dados do seu SQL Server, ex: C:\Program Files\Microsoft SQL
--- Server\MSSQL...\MSSQL\DATA\):
---   - RestauranteEstoqueDb.mdf -> arquivo de DADOS (onde as tabelas
---     e as linhas realmente ficam salvas)
---   - RestauranteEstoqueDb_log.ldf -> arquivo de LOG de transações
---     (histórico de alterações, usado para o SQL Server conseguir
---     desfazer/recuperar em caso de falha)
--- Não precisamos escolher esses caminhos na mão: sem especificar nada,
--- o SQL Server usa a pasta padrão configurada na instância.
+-- O que acontece quando a gente roda CREATE DATABASE é que o SQL Server
+-- cria dois arquivos físicos no disco (na pasta padrão de dados dele,
+-- ex: C:\Program Files\Microsoft SQL Server\MSSQL...\MSSQL\DATA\):
+--   - RestauranteEstoqueDb.mdf -> esse é o arquivo de DADOS (é onde as
+--     tabelas e as linhas ficam salvas de verdade)
+--   - RestauranteEstoqueDb_log.ldf -> esse é o arquivo de LOG de
+--     transações (o histórico de alterações, que o SQL Server usa pra
+--     conseguir desfazer/recuperar se alguma coisa falhar)
+-- Repara que a gente não precisa escolher esses caminhos na mão: se não
+-- especificar nada, o SQL Server usa a pasta padrão configurada na instância.
 IF NOT EXISTS (SELECT 1 FROM sys.databases WHERE name = 'RestauranteEstoqueDb')
 BEGIN
     CREATE DATABASE RestauranteEstoqueDb;
@@ -35,21 +36,23 @@ GO
 
 
 -- =============================================================
--- PASSO 2 — "Entrar" no banco novo
+-- PASSO 2 — Agora a gente "entra" no banco novo
 -- =============================================================
--- Tudo que vier depois deste USE roda dentro do RestauranteEstoqueDb
--- (é assim que "salvamos as tabelas nele", e não em outro banco que
--- porventura já exista na instância, como o ProverContatos).
+-- Tudo que vem depois deste USE roda dentro do RestauranteEstoqueDb.
+-- Ou seja, é assim que a gente garante que as tabelas vão ser salvas
+-- nele, e não em outro banco que por acaso já exista na instância,
+-- como o ProverContatos.
 USE RestauranteEstoqueDb;
 GO
 
 
 -- =============================================================
--- PASSO 3 — Criar as tabelas dentro do banco novo
+-- PASSO 3 — Hora de criar as tabelas dentro do banco novo
 -- =============================================================
 
--- 3.1) Categories
--- Precisa existir antes de Products, porque Products tem uma FK para ela.
+-- 3.1) Começando pela Categories
+-- Ela tem que existir antes da Products, porque a Products tem uma FK
+-- apontando pra ela.
 IF NOT EXISTS (SELECT 1 FROM sys.tables WHERE name = 'Categories')
 BEGIN
     CREATE TABLE Categories
@@ -61,7 +64,7 @@ BEGIN
 END
 GO
 
--- 3.2) Products
+-- 3.2) Depois vem a Products
 IF NOT EXISTS (SELECT 1 FROM sys.tables WHERE name = 'Products')
 BEGIN
     CREATE TABLE Products
@@ -79,15 +82,16 @@ BEGIN
 END
 GO
 
--- 3.3) StockMovements
--- Depende de Products (cada movimentação é sempre de um produto específico).
+-- 3.3) Em seguida, a StockMovements
+-- Ela depende da Products, porque toda movimentação é sempre de um
+-- produto específico.
 IF NOT EXISTS (SELECT 1 FROM sys.tables WHERE name = 'StockMovements')
 BEGIN
     CREATE TABLE StockMovements
     (
         Id           UNIQUEIDENTIFIER NOT NULL PRIMARY KEY,
         ProductId    UNIQUEIDENTIFIER NOT NULL,
-        Type         INT              NOT NULL, -- 1 = Entrada, 2 = Saida (enum StockMovementType)
+        Type         INT              NOT NULL, -- aqui 1 = Entrada e 2 = Saida (é o enum StockMovementType)
         Quantity     INT              NOT NULL,
         MovementDate DATETIME2        NOT NULL,
         Notes        NVARCHAR(500)    NULL,
@@ -98,7 +102,7 @@ BEGIN
 END
 GO
 
--- 3.4) Users
+-- 3.4) E por último, a Users
 IF NOT EXISTS (SELECT 1 FROM sys.tables WHERE name = 'Users')
 BEGIN
     CREATE TABLE Users
@@ -115,9 +119,9 @@ GO
 
 
 -- =============================================================
--- PASSO 4 (opcional) — Conferir o resultado
+-- PASSO 4 (opcional) — Pra fechar, a gente confere o resultado
 -- =============================================================
--- Rode só este SELECT depois para ver as 4 tabelas recém-criadas,
--- sem precisar ficar clicando no Object Explorer.
+-- Depois é só rodar este SELECT sozinho pra ver as 4 tabelas que acabaram
+-- de nascer, sem precisar ficar clicando no Object Explorer.
 SELECT name AS TabelaCriada FROM sys.tables ORDER BY name;
 GO

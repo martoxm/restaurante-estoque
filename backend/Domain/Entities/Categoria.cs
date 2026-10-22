@@ -7,7 +7,7 @@ public class Categoria : Entity
     public string Nome { get; private set; } = string.Empty;
     public string? Descricao { get; private set; }
 
-    private readonly List<Produto> _produtos = new();
+    private readonly List<Produto> _produtos = [];
     public IReadOnlyCollection<Produto> Produtos => _produtos.AsReadOnly();
 
     public Guid RestauranteId { get; private set; }

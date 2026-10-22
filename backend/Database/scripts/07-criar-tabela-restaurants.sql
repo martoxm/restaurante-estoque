@@ -1,15 +1,16 @@
 -- =============================================================
--- Etapa 28 — Criação manual da tabela Restaurants (fundação multi-tenant)
+-- Etapa 28 — Aqui a gente cria na mão a tabela Restaurants. Ela é a base
+-- do multi-tenant.
 --
--- Como rodar no SQL Server Management Studio:
---   1. Conecte no seu servidor local, dentro do banco RestauranteEstoqueDb
---      (o mesmo criado no script 01-criar-tabelas.sql).
---   2. Clique em "Nova Consulta" já com esse banco selecionado.
---   3. Cole este arquivo inteiro e aperte Executar (F5), uma vez só.
+-- Pra rodar no SQL Server Management Studio:
+--   1. Conecta no seu servidor local, dentro do banco RestauranteEstoqueDb
+--      (o mesmo que a gente criou no script 01-criar-tabelas.sql).
+--   2. Clica em "Nova Consulta" já com esse banco selecionado.
+--   3. Cola este arquivo inteiro e aperta Executar (F5), uma vez só.
 --
--- Rode este script ANTES do 08-adicionar-restaurantid.sql — a tabela
--- Restaurants precisa existir antes das outras tabelas ganharem uma FK
--- apontando pra ela.
+-- Atenção à ordem: roda este script ANTES do 08-adicionar-restaurantid.sql.
+-- O motivo é que a tabela Restaurants precisa existir antes das outras
+-- tabelas ganharem uma FK apontando pra ela.
 -- =============================================================
 
 USE RestauranteEstoqueDb;
@@ -25,6 +26,6 @@ BEGIN
 END
 GO
 
--- Conferir o resultado
+-- E aqui a gente confere se a tabela apareceu mesmo
 SELECT name AS TabelaCriada FROM sys.tables ORDER BY name;
 GO

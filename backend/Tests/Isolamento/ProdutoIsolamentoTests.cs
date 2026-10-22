@@ -20,8 +20,8 @@ public class ProdutoIsolamentoTests
         var categoriaDoA = Categoria.Criar(restauranteA, "Grãos", CriadoEm);
         var categoriaDoB = Categoria.Criar(restauranteB, "Grãos", CriadoEm);
         context.Categorias.AddRange(categoriaDoA, categoriaDoB);
-        context.Produtos.Add(Produto.Criar(restauranteA, "Arroz", null, Dinheiro.Criar(10m), categoriaDoA.Id, CriadoEm));
-        context.Produtos.Add(Produto.Criar(restauranteB, "Feijão", null, Dinheiro.Criar(8m), categoriaDoB.Id, CriadoEm));
+        context.Produtos.Add(Produto.Criar(restauranteA, "Arroz", null, Dinheiro.Criar(10m), categoriaDoA, CriadoEm));
+        context.Produtos.Add(Produto.Criar(restauranteB, "Feijão", null, Dinheiro.Criar(8m), categoriaDoB, CriadoEm));
         await context.SaveChangesAsync();
 
         usuarioAtualService.RestauranteId = restauranteA;
@@ -43,7 +43,7 @@ public class ProdutoIsolamentoTests
         var restauranteA = Guid.NewGuid();
         var restauranteB = Guid.NewGuid();
         var categoria = Categoria.Criar(restauranteB, "Grãos", CriadoEm);
-        var produtoDoRestauranteB = Produto.Criar(restauranteB, "Arroz", null, Dinheiro.Criar(10m), categoria.Id, CriadoEm);
+        var produtoDoRestauranteB = Produto.Criar(restauranteB, "Arroz", null, Dinheiro.Criar(10m), categoria, CriadoEm);
         context.Categorias.Add(categoria);
         context.Produtos.Add(produtoDoRestauranteB);
         await context.SaveChangesAsync();
@@ -63,7 +63,7 @@ public class ProdutoIsolamentoTests
         using var context = TestDbContextFactory.Create(usuarioAtualService);
         var restauranteA = Guid.NewGuid();
         var categoria = Categoria.Criar(restauranteA, "Grãos", CriadoEm);
-        var produto = Produto.Criar(restauranteA, "Arroz", null, Dinheiro.Criar(10m), categoria.Id, CriadoEm);
+        var produto = Produto.Criar(restauranteA, "Arroz", null, Dinheiro.Criar(10m), categoria, CriadoEm);
         context.Categorias.Add(categoria);
         context.Produtos.Add(produto);
         await context.SaveChangesAsync();
@@ -86,8 +86,8 @@ public class ProdutoIsolamentoTests
         var categoriaDoA = Categoria.Criar(restauranteA, "Grãos", CriadoEm);
         var categoriaDoB = Categoria.Criar(restauranteB, "Grãos", CriadoEm);
         context.Categorias.AddRange(categoriaDoA, categoriaDoB);
-        context.Produtos.Add(Produto.Criar(restauranteA, "Arroz", null, Dinheiro.Criar(10m), categoriaDoA.Id, CriadoEm));
-        context.Produtos.Add(Produto.Criar(restauranteB, "Feijão", null, Dinheiro.Criar(8m), categoriaDoB.Id, CriadoEm));
+        context.Produtos.Add(Produto.Criar(restauranteA, "Arroz", null, Dinheiro.Criar(10m), categoriaDoA, CriadoEm));
+        context.Produtos.Add(Produto.Criar(restauranteB, "Feijão", null, Dinheiro.Criar(8m), categoriaDoB, CriadoEm));
         await context.SaveChangesAsync();
         var repository = new FakeProdutoRepository(context);
 

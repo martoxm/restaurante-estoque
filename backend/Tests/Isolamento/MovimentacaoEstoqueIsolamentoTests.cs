@@ -17,7 +17,7 @@ public class MovimentacaoEstoqueIsolamentoTests
         var restauranteA = Guid.NewGuid();
         var restauranteB = Guid.NewGuid();
         var categoria = Categoria.Criar(restauranteB, "Grãos", CriadoEm);
-        var produto = Produto.Criar(restauranteB, "Arroz", null, Dinheiro.Criar(10m), categoria.Id, CriadoEm);
+        var produto = Produto.Criar(restauranteB, "Arroz", null, Dinheiro.Criar(10m), categoria, CriadoEm);
         var movimentacao = MovimentacaoEstoque.Criar(restauranteB, produto.Id, TipoMovimentacaoEstoque.Entrada, Quantidade.Criar(5), CriadoEm);
         context.Categorias.Add(categoria);
         context.Produtos.Add(produto);
@@ -39,7 +39,7 @@ public class MovimentacaoEstoqueIsolamentoTests
         using var context = TestDbContextFactory.Create(usuarioAtualService);
         var restauranteA = Guid.NewGuid();
         var categoria = Categoria.Criar(restauranteA, "Grãos", CriadoEm);
-        var produto = Produto.Criar(restauranteA, "Arroz", null, Dinheiro.Criar(10m), categoria.Id, CriadoEm);
+        var produto = Produto.Criar(restauranteA, "Arroz", null, Dinheiro.Criar(10m), categoria, CriadoEm);
         var movimentacao = MovimentacaoEstoque.Criar(restauranteA, produto.Id, TipoMovimentacaoEstoque.Entrada, Quantidade.Criar(5), CriadoEm);
         context.Categorias.Add(categoria);
         context.Produtos.Add(produto);

@@ -27,6 +27,7 @@ public sealed record Quantidade : IComparable<Quantidade>
 
     public Quantidade Subtrair(Quantidade outra) => Criar(Valor - outra.Valor);
 
+
     public int CompareTo(Quantidade? outra) => outra is null ? 1 : Valor.CompareTo(outra.Valor);
 
     public static bool operator >(Quantidade esquerda, Quantidade direita) => esquerda.CompareTo(direita) > 0;

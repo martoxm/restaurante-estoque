@@ -1,11 +1,11 @@
 -- =============================================================
--- Etapa 10b — Criação manual da tabela Suppliers (Fornecedores)
+-- Etapa 10b — Aqui a gente cria na mão a tabela Suppliers (os Fornecedores).
 --
--- Como rodar no SQL Server Management Studio:
---   1. Conecte no seu servidor local, dentro do banco RestauranteEstoqueDb
---      (o mesmo criado no script 01-criar-tabelas.sql).
---   2. Clique em "Nova Consulta" já com esse banco selecionado.
---   3. Cole este arquivo inteiro e aperte Executar (F5), uma vez só.
+-- Pra rodar no SQL Server Management Studio:
+--   1. Conecta no seu servidor local, dentro do banco RestauranteEstoqueDb
+--      (é o mesmo que a gente criou no script 01-criar-tabelas.sql).
+--   2. Clica em "Nova Consulta" já com esse banco selecionado.
+--   3. Cola este arquivo inteiro e aperta Executar (F5), uma vez só.
 -- =============================================================
 
 USE RestauranteEstoqueDb;
@@ -23,6 +23,6 @@ BEGIN
 END
 GO
 
--- Conferir o resultado
+-- E aqui a gente confere se a tabela apareceu mesmo
 SELECT name AS TabelaCriada FROM sys.tables ORDER BY name;
 GO

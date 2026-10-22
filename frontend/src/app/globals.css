@@ -65,11 +65,11 @@
   --border: oklch(0.922 0 0);
   --input: oklch(0.922 0 0);
   --ring: oklch(0.708 0 0);
-  /* Paleta categórica validada (skill dataviz): ordem fixa
-     azul/laranja/água/amarelo/magenta — checada pra distinção sob
-     daltonismo e contraste mínimo contra o fundo claro (algumas cores
-     ficam abaixo de 3:1, por isso o gráfico sempre mostra legenda com
-     texto, nunca só a cor). */
+  /* Essa é a paleta categórica, validada com a skill dataviz. A ordem é
+     fixa: azul/laranja/água/amarelo/magenta. A gente checou se dá pra
+     distinguir as cores mesmo com daltonismo e o contraste mínimo contra o
+     fundo claro. Repara que algumas ficam abaixo de 3:1 — por isso o
+     gráfico sempre mostra legenda com texto, nunca depende só da cor. */
   --chart-1: #2a78d6;
   --chart-2: #eb6834;
   --chart-3: #1baf7a;
@@ -107,9 +107,9 @@
   --border: oklch(1 0 0 / 10%);
   --input: oklch(1 0 0 / 15%);
   --ring: oklch(0.556 0 0);
-  /* Mesmas 5 cores do modo claro, um degrau ajustado pra continuar
-     legível (contraste >= 3:1) sobre o fundo escuro — validado com a
-     mesma ferramenta da skill dataviz. */
+  /* São as mesmas 5 cores do modo claro, só que cada uma ajustada um
+     degrau pra continuar legível (contraste >= 3:1) em cima do fundo
+     escuro. Validei com a mesma ferramenta da skill dataviz. */
   --chart-1: #3987e5;
   --chart-2: #d95926;
   --chart-3: #199e70;

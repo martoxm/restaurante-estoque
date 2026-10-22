@@ -6,4 +6,10 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
 
+  <!-- Etapa 45: deixa o projeto de testes enxergar o que é "internal" no Domain
+       (ex.: MovimentacaoEstoque.Criar), pra testar as validações direto. -->
+  <ItemGroup>
+    <InternalsVisibleTo Include="RestauranteEstoque.Tests" />
+  </ItemGroup>
+
 </Project>

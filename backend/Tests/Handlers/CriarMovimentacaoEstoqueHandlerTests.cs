@@ -17,7 +17,7 @@ public class CriarMovimentacaoEstoqueHandlerTests
     {
         using var context = TestDbContextFactory.Create();
         var categoria = Categoria.Criar(DadosTeste.RestauranteId, "Grãos", CriadoEm);
-        var produto = Produto.Criar(DadosTeste.RestauranteId, "Arroz", null, Dinheiro.Criar(10m), categoria.Id, CriadoEm, quantidadeInicial: Quantidade.Criar(5));
+        var produto = Produto.Criar(DadosTeste.RestauranteId, "Arroz", null, Dinheiro.Criar(10m), categoria, CriadoEm, quantidadeInicial: Quantidade.Criar(5));
         context.Categorias.Add(categoria);
         context.Produtos.Add(produto);
         await context.SaveChangesAsync();
@@ -42,7 +42,7 @@ public class CriarMovimentacaoEstoqueHandlerTests
     {
         using var context = TestDbContextFactory.Create();
         var categoria = Categoria.Criar(DadosTeste.RestauranteId, "Grãos", CriadoEm);
-        var produto = Produto.Criar(DadosTeste.RestauranteId, "Arroz", null, Dinheiro.Criar(10m), categoria.Id, CriadoEm, quantidadeInicial: Quantidade.Criar(5));
+        var produto = Produto.Criar(DadosTeste.RestauranteId, "Arroz", null, Dinheiro.Criar(10m), categoria, CriadoEm, quantidadeInicial: Quantidade.Criar(5));
         context.Categorias.Add(categoria);
         context.Produtos.Add(produto);
         await context.SaveChangesAsync();
@@ -64,7 +64,7 @@ public class CriarMovimentacaoEstoqueHandlerTests
     {
         using var context = TestDbContextFactory.Create();
         var categoria = Categoria.Criar(DadosTeste.RestauranteId, "Grãos", CriadoEm);
-        var produto = Produto.Criar(DadosTeste.RestauranteId, "Arroz", null, Dinheiro.Criar(10m), categoria.Id, CriadoEm, quantidadeInicial: Quantidade.Criar(5));
+        var produto = Produto.Criar(DadosTeste.RestauranteId, "Arroz", null, Dinheiro.Criar(10m), categoria, CriadoEm, quantidadeInicial: Quantidade.Criar(5));
         context.Categorias.Add(categoria);
         context.Produtos.Add(produto);
         await context.SaveChangesAsync();

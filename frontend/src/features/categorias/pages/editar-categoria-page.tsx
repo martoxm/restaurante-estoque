@@ -127,10 +127,10 @@ export function EditarCategoriaPage() {
 
                 {atualizarCategoriaMutation.isError && (
                   <p className="text-sm text-destructive">
-                    {/* Editar categoria virou ação de Admin na Etapa 27 do
-                    backend — o botão "Editar" da listagem já fica escondido
-                    pra quem não é Admin, mas esse 403 cobre quem chega aqui
-                    direto pela URL. */}
+                    {/* Na Etapa 27 do backend, editar categoria virou ação de
+                    Admin. O botão "Editar" da listagem já some pra quem não é
+                    Admin, mas esse 403 cobre quem chega aqui digitando a URL
+                    direto. */}
                     {isAxiosError(atualizarCategoriaMutation.error) &&
                     atualizarCategoriaMutation.error.response?.status === 403
                       ? "Você não tem permissão para editar categorias — essa ação é restrita a administradores."

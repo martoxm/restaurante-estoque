@@ -16,17 +16,20 @@ namespace RestauranteEstoque.Application.UseCases.Produtos;
 public class CriarProdutoHandler : IRequestHandler<CriarProdutoCommand, Guid>
 {
     private readonly IProdutoRepository _produtoRepository;
+    private readonly ICategoriaRepository _categoriaRepository;
     private readonly IApplicationDbContext _context;
     private readonly IUsuarioAtualService _usuarioAtualService;
     private readonly IRelogio _relogio;
 
     public CriarProdutoHandler(
         IProdutoRepository produtoRepository,
+        ICategoriaRepository categoriaRepository,
         IApplicationDbContext context,
         IUsuarioAtualService usuarioAtualService,
         IRelogio relogio)
     {
         _produtoRepository = produtoRepository;
+        _categoriaRepository = categoriaRepository;
         _context = context;
         _usuarioAtualService = usuarioAtualService;
         _relogio = relogio;
@@ -34,12 +37,17 @@ public class CriarProdutoHandler : IRequestHandler<CriarProdutoCommand, Guid>
 
     public async Task<Guid> Handle(CriarProdutoCommand request, CancellationToken cancellationToken)
     {
+        var categoria = await _categoriaRepository.ObterPorIdAsync(request.CategoriaId, cancellationToken);
+
+        if (categoria is null)
+            throw new NaoEncontradoException($"Categoria com Id '{request.CategoriaId}' não encontrada.");
+
         var produto = Produto.Criar(
             _usuarioAtualService.ObterRestauranteIdObrigatorio(),
             request.Nome,
             request.Descricao,
             Dinheiro.Criar(request.Preco),
-            request.CategoriaId,
+            categoria,
             _relogio.AgoraUtc,
             Quantidade.Criar(request.QuantidadeInicial));
 
@@ -73,10 +81,8 @@ public class ExcluirProdutoHandler : IRequestHandler<ExcluirProdutoCommand>
         if (produto is null)
             throw new NaoEncontradoException($"Produto com Id '{request.Id}' não encontrado.");
 
-        var temMovimentacoes = await _movimentacaoEstoqueRepository.ExisteParaProdutoAsync(request.Id, cancellationToken);
-
-        if (temMovimentacoes)
-            throw new DomainException("Não é possível excluir um produto que possui movimentações de estoque vinculadas.");
+        var possuiMovimentacoes = await _movimentacaoEstoqueRepository.ExisteParaProdutoAsync(request.Id, cancellationToken);
+        produto.GarantirQuePodeSerExcluido(possuiMovimentacoes);
 
         _produtoRepository.Remover(produto);
         await _context.SaveChangesAsync(cancellationToken);
@@ -86,11 +92,13 @@ public class ExcluirProdutoHandler : IRequestHandler<ExcluirProdutoCommand>
 public class AtualizarProdutoHandler : IRequestHandler<AtualizarProdutoCommand>
 {
     private readonly IProdutoRepository _produtoRepository;
+    private readonly ICategoriaRepository _categoriaRepository;
     private readonly IApplicationDbContext _context;
 
-    public AtualizarProdutoHandler(IProdutoRepository produtoRepository, IApplicationDbContext context)
+    public AtualizarProdutoHandler(IProdutoRepository produtoRepository, ICategoriaRepository categoriaRepository, IApplicationDbContext context)
     {
         _produtoRepository = produtoRepository;
+        _categoriaRepository = categoriaRepository;
         _context = context;
     }
 
@@ -101,7 +109,12 @@ public class AtualizarProdutoHandler : IRequestHandler<AtualizarProdutoCommand>
         if (produto is null)
             throw new NaoEncontradoException($"Produto com Id '{request.Id}' não encontrado.");
 
-        produto.Atualizar(request.Nome, request.Descricao, Dinheiro.Criar(request.Preco), request.CategoriaId);
+        var categoria = await _categoriaRepository.ObterPorIdAsync(request.CategoriaId, cancellationToken);
+
+        if (categoria is null)
+            throw new NaoEncontradoException($"Categoria com Id '{request.CategoriaId}' não encontrada.");
+
+        produto.Atualizar(request.Nome, request.Descricao, Dinheiro.Criar(request.Preco), categoria);
 
         _produtoRepository.Atualizar(produto);
 
@@ -125,15 +138,7 @@ public class ObterProdutoPorIdHandler : IRequestHandler<ObterProdutoPorIdQuery, 
         if (produto is null)
             return null;
 
-        return new ProdutoDetalhesDto(
-            produto.Id,
-            produto.Nome,
-            produto.Descricao,
-            produto.Preco.Valor,
-            produto.QuantidadeEmEstoque.Valor,
-            produto.CategoriaId,
-            produto.Categoria!.Nome,
-            produto.CriadoEm);
+        return produto.ParaDetalhesDto();
     }
 }
 
@@ -158,14 +163,7 @@ public class ListarProdutosHandler : IRequestHandler<ListarProdutosQuery, Result
             cancellationToken);
 
         var itens = produtos
-            .Select(produto => new ProdutoItemListaDto(
-                produto.Id,
-                produto.Nome,
-                produto.Preco.Valor,
-                produto.QuantidadeEmEstoque.Valor,
-                produto.CategoriaId,
-                produto.Categoria!.Nome,
-                produto.CriadoEm))
+            .Select(produto => produto.ParaItemListaDto())
             .ToList();
 
         return new ResultadoPaginado<ProdutoItemListaDto>(itens, request.Pagina, request.TamanhoPagina, totalItens);
@@ -203,4 +201,26 @@ public class AvisarEstoqueBaixoHandler : INotificationHandler<DomainEventNotific
 
         return Task.CompletedTask;
     }
+}
+
+file static class ProdutoMapeamentos
+{
+    public static ProdutoDetalhesDto ParaDetalhesDto(this Produto produto) => new(
+        produto.Id,
+        produto.Nome,
+        produto.Descricao,
+        produto.Preco.Valor,
+        produto.QuantidadeEmEstoque.Valor,
+        produto.CategoriaId,
+        produto.Categoria!.Nome,
+        produto.CriadoEm);
+
+    public static ProdutoItemListaDto ParaItemListaDto(this Produto produto) => new(
+        produto.Id,
+        produto.Nome,
+        produto.Preco.Valor,
+        produto.QuantidadeEmEstoque.Valor,
+        produto.CategoriaId,
+        produto.Categoria!.Nome,
+        produto.CriadoEm);
 }

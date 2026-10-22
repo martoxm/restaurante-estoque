@@ -1,3 +1,4 @@
+using System.Reflection;
 using RestauranteEstoque.Domain.Common;
 using RestauranteEstoque.Domain.Entities;
 using RestauranteEstoque.Domain.Enums;
@@ -43,5 +44,14 @@ public class MovimentacaoEstoqueTests
     {
         Assert.Throws<DomainException>(() =>
             MovimentacaoEstoque.Criar(Guid.Empty, Guid.NewGuid(), TipoMovimentacaoEstoque.Entrada, Quantidade.Criar(1), DataMovimentacao));
+    }
+
+    [Fact]
+    public void Criar_NaoDeveSerPublico_ParaObrigarOUsoDoMovimentadorEstoque()
+    {
+        var criar = typeof(MovimentacaoEstoque).GetMethod(nameof(MovimentacaoEstoque.Criar), BindingFlags.Static | BindingFlags.NonPublic);
+
+        Assert.NotNull(criar);
+        Assert.True(criar!.IsAssembly);
     }
 }

@@ -160,10 +160,10 @@ export function EditarFornecedorPage() {
 
                 {atualizarFornecedorMutation.isError && (
                   <p className="text-sm text-destructive">
-                    {/* Editar fornecedor virou ação de Admin na Etapa 27 do
-                    backend — o botão "Editar" da listagem já fica escondido
-                    pra quem não é Admin, mas esse 403 cobre quem chega aqui
-                    direto pela URL. */}
+                    {/* Na Etapa 27 do backend, editar fornecedor virou ação de
+                    Admin. O botão "Editar" da listagem já some pra quem não é
+                    Admin, mas esse 403 cobre quem chega aqui digitando a URL
+                    direto. */}
                     {isAxiosError(atualizarFornecedorMutation.error) &&
                     atualizarFornecedorMutation.error.response?.status === 403
                       ? "Você não tem permissão para editar fornecedores — essa ação é restrita a administradores."

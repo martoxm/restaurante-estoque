@@ -43,9 +43,9 @@ export function LoginPage() {
           </CardDescription>
         </CardHeader>
         <CardContent>
-          {/* <Form {...form}> é o FormProvider do react-hook-form — ele
-              "espalha" o form para os FormField de dentro, sem precisar
-              passar form.control em cada um manualmente. */}
+          {/* Esse <Form {...form}> é o FormProvider do react-hook-form. Ele
+              "espalha" o form pros FormField de dentro, assim a gente não
+              precisa passar form.control em cada um na mão. */}
           <Form {...form}>
             <form
               onSubmit={form.handleSubmit(onSubmit)}

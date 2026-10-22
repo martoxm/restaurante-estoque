@@ -23,6 +23,14 @@ public class TestDbContext : DbContext, IApplicationDbContext
 
     private Guid? RestauranteIdAtual => _usuarioAtualService.RestauranteId;
 
+    public FakeTransacao? UltimaTransacao { get; private set; }
+
+    public Task<ITransacao> IniciarTransacaoAsync(CancellationToken cancellationToken)
+    {
+        UltimaTransacao = new FakeTransacao();
+        return Task.FromResult<ITransacao>(UltimaTransacao);
+    }
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.Entity<Produto>().HasQueryFilter(produto => produto.RestauranteId == RestauranteIdAtual);
