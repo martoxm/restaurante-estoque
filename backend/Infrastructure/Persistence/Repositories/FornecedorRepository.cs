@@ -27,7 +27,7 @@ public class FornecedorRepository : IFornecedorRepository
         DirecaoOrdenacao direcaoOrdenacao,
         CancellationToken cancellationToken)
     {
-        IQueryable<Fornecedor> query = _context.Fornecedores;
+        var query = _context.Fornecedores.AsQueryable();
 
         if (!string.IsNullOrWhiteSpace(nome))
             query = query.Where(fornecedor => fornecedor.Nome.Contains(nome));

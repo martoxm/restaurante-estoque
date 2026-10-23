@@ -31,8 +31,9 @@ public class FakeProdutoRepository : IProdutoRepository
         DirecaoOrdenacao direcaoOrdenacao,
         CancellationToken cancellationToken)
     {
-        IQueryable<Produto> query = _context.Produtos
-            .Include(produto => produto.Categoria);
+        var query = _context.Produtos
+            .Include(produto => produto.Categoria)
+            .AsQueryable();
 
         if (!string.IsNullOrWhiteSpace(nome))
             query = query.Where(produto => produto.Nome.Contains(nome));

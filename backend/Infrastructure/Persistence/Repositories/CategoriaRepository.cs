@@ -28,8 +28,9 @@ public class CategoriaRepository : ICategoriaRepository
         DirecaoOrdenacao direcaoOrdenacao,
         CancellationToken cancellationToken)
     {
-        IQueryable<Categoria> query = _context.Categorias
-            .Include(categoria => categoria.Produtos);
+        var query = _context.Categorias
+            .Include(categoria => categoria.Produtos)
+            .AsQueryable();
 
         if (!string.IsNullOrWhiteSpace(nome))
             query = query.Where(categoria => categoria.Nome.Contains(nome));
