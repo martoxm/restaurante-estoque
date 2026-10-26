@@ -4,7 +4,6 @@ import { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import Link from "next/link";
 import { useParams } from "next/navigation";
-import { isAxiosError } from "axios";
 import { useCategoria } from "@/features/categorias/hooks/useCategoria";
 import { useAtualizarCategoria } from "@/features/categorias/hooks/useAtualizarCategoria";
 import type { AtualizarCategoriaRequest } from "@/features/categorias/types/categoria";
@@ -19,6 +18,8 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
+import { FormRootError } from "@/components/form-root-error";
+import { aplicarErrosDaApi } from "@/lib/api-errors";
 
 export function EditarCategoriaPage() {
   const params = useParams<{ id: string }>();
@@ -48,6 +49,8 @@ export function EditarCategoriaPage() {
         nome: data.nome,
         descricao: data.descricao || undefined,
       },
+    }, {
+      onError: (error) => aplicarErrosDaApi(error, form),
     });
   }
 
@@ -125,18 +128,7 @@ export function EditarCategoriaPage() {
                   )}
                 />
 
-                {atualizarCategoriaMutation.isError && (
-                  <p className="text-sm text-destructive">
-                    {/* Na Etapa 27 do backend, editar categoria virou ação de
-                    Admin. O botão "Editar" da listagem já some pra quem não é
-                    Admin, mas esse 403 cobre quem chega aqui digitando a URL
-                    direto. */}
-                    {isAxiosError(atualizarCategoriaMutation.error) &&
-                    atualizarCategoriaMutation.error.response?.status === 403
-                      ? "Você não tem permissão para editar categorias — essa ação é restrita a administradores."
-                      : "Não foi possível salvar as alterações. Confira os dados e tente novamente."}
-                  </p>
-                )}
+                <FormRootError />
 
                 <Button
                   type="submit"

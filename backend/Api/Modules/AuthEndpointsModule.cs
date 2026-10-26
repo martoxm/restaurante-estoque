@@ -33,15 +33,15 @@ public class AuthEndpointsModule : IEndpointModule
             .Produces(StatusCodes.Status400BadRequest);
     }
 
-    private static async Task<IResult> Login(LoginCommand command, ISender sender)
+    private static async Task<IResult> Login(LoginCommand command, ISender sender, CancellationToken cancellationToken)
     {
-        var result = await sender.Send(command);
+        var result = await sender.Send(command, cancellationToken);
         return Results.Ok(result);
     }
 
-    private static async Task<IResult> Registrar(RegistrarCommand command, ISender sender)
+    private static async Task<IResult> Registrar(RegistrarCommand command, ISender sender, CancellationToken cancellationToken)
     {
-        var result = await sender.Send(command);
+        var result = await sender.Send(command, cancellationToken);
         return Results.Ok(result);
     }
 }

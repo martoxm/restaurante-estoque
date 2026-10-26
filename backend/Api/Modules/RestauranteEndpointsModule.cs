@@ -45,22 +45,22 @@ public class RestauranteEndpointsModule : IEndpointModule
             .RequireAuthorization(policy => policy.RequireRole(RoleNames.Admin));
     }
 
-    private static async Task<IResult> ListarRestaurantes([AsParameters] ListarRestaurantesRequest request, ISender sender)
+    private static async Task<IResult> ListarRestaurantes([AsParameters] ListarRestaurantesRequest request, ISender sender, CancellationToken cancellationToken)
     {
         var query = new ListarRestaurantesQuery(request.Pagina, request.TamanhoPagina, request.Nome, request.DirecaoOrdenacao);
-        var result = await sender.Send(query);
+        var result = await sender.Send(query, cancellationToken);
         return Results.Ok(result);
     }
 
-    private static async Task<IResult> ObterRestaurantePorId(Guid id, ISender sender)
+    private static async Task<IResult> ObterRestaurantePorId(Guid id, ISender sender, CancellationToken cancellationToken)
     {
-        var result = await sender.Send(new ObterRestaurantePorIdQuery(id));
+        var result = await sender.Send(new ObterRestaurantePorIdQuery(id), cancellationToken);
         return result is not null ? Results.Ok(result) : Results.NotFound();
     }
 
-    private static async Task<IResult> AtualizarRestaurante(Guid id, AtualizarRestauranteRequest request, ISender sender)
+    private static async Task<IResult> AtualizarRestaurante(Guid id, AtualizarRestauranteRequest request, ISender sender, CancellationToken cancellationToken)
     {
-        await sender.Send(new AtualizarRestauranteCommand(id, request.Nome));
+        await sender.Send(new AtualizarRestauranteCommand(id, request.Nome), cancellationToken);
         return Results.NoContent();
     }
 }

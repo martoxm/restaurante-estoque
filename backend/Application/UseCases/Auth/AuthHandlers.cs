@@ -22,11 +22,7 @@ public class LoginHandler : IRequestHandler<LoginCommand, LoginResponse>
     {
         var email = request.Email.Trim().ToLowerInvariant();
 
-        var usuario = await _identityService.ValidarCredenciaisAsync(email, request.Senha, cancellationToken);
-
-        if (usuario is null)
-            throw new CredenciaisInvalidasException();
-
+        var usuario = await _identityService.ValidarCredenciaisAsync(email, request.Senha, cancellationToken) ?? throw new CredenciaisInvalidasException();
         var roles = await _identityService.ObterRolesAsync(usuario.Id, cancellationToken);
         var token = _jwtTokenGenerator.GerarToken(usuario.Id, usuario.Nome, usuario.Email, roles, usuario.RestauranteId);
 

@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { isAxiosError } from "axios";
+import { obterMensagemErro } from "@/lib/api-errors";
 import { useProdutos } from "@/features/produtos/hooks/useProdutos";
 import { useUsuarioAtual } from "@/features/auth/hooks/useUsuarioAtual";
 import { useExcluirProduto } from "@/features/produtos/hooks/useExcluirProduto";
@@ -33,19 +33,8 @@ export function ListaProdutosPage() {
 
     setErroExclusao(null);
     excluirProdutoMutation.mutate(id, {
-      onError: (error) => {
-        if (isAxiosError(error) && error.response?.status === 403) {
-          setErroExclusao(
-            "Você não tem permissão para excluir produtos — essa ação é restrita a administradores."
-          );
-          return;
-        }
-
-        const detail = isAxiosError<{ detail?: string }>(error)
-          ? error.response?.data?.detail
-          : undefined;
-        setErroExclusao(detail ?? "Não foi possível excluir o produto.");
-      },
+      onError: (error) =>
+        setErroExclusao(obterMensagemErro(error, "Não foi possível excluir o produto.")),
     });
   }
 

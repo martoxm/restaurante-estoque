@@ -21,6 +21,8 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
+import { FormRootError } from "@/components/form-root-error";
+import { aplicarErrosDaApi } from "@/lib/api-errors";
 
 export function RegistrarPage() {
   const form = useForm<RegistrarRequest>({
@@ -30,7 +32,9 @@ export function RegistrarPage() {
   const registrarMutation = useRegistrar();
 
   function onSubmit(data: RegistrarRequest) {
-    registrarMutation.mutate(data);
+    registrarMutation.mutate(data, {
+      onError: (error) => aplicarErrosDaApi(error, form),
+    });
   }
 
   return (
@@ -134,12 +138,7 @@ export function RegistrarPage() {
                 )}
               />
 
-              {registrarMutation.isError && (
-                <p className="text-sm text-destructive">
-                  Não foi possível criar a conta. Verifique os dados
-                  informados (o e-mail pode já estar em uso).
-                </p>
-              )}
+              <FormRootError />
 
               <Button
                 type="submit"

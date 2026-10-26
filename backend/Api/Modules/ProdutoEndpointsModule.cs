@@ -61,13 +61,13 @@ public class ProdutoEndpointsModule : IEndpointModule
             .Produces(StatusCodes.Status404NotFound);
     }
 
-    private static async Task<IResult> CriarProduto(CriarProdutoCommand command, ISender sender)
+    private static async Task<IResult> CriarProduto(CriarProdutoCommand command, ISender sender, CancellationToken cancellationToken)
     {
-        var id = await sender.Send(command);
+        var id = await sender.Send(command, cancellationToken);
         return Results.Created($"/api/v1/produtos/{id}", new ProdutoCriadoResponse(id));
     }
 
-    private static async Task<IResult> ListarProdutos([AsParameters] ListarProdutosRequest request, ISender sender)
+    private static async Task<IResult> ListarProdutos([AsParameters] ListarProdutosRequest request, ISender sender, CancellationToken cancellationToken)
     {
         var query = new ListarProdutosQuery(
             request.Pagina,
@@ -77,25 +77,25 @@ public class ProdutoEndpointsModule : IEndpointModule
             request.OrdenarPor,
             request.DirecaoOrdenacao);
 
-        var result = await sender.Send(query);
+        var result = await sender.Send(query, cancellationToken);
         return Results.Ok(result);
     }
 
-    private static async Task<IResult> ObterProdutoPorId(Guid id, ISender sender)
+    private static async Task<IResult> ObterProdutoPorId(Guid id, ISender sender, CancellationToken cancellationToken)
     {
-        var result = await sender.Send(new ObterProdutoPorIdQuery(id));
+        var result = await sender.Send(new ObterProdutoPorIdQuery(id), cancellationToken);
         return result is not null ? Results.Ok(result) : Results.NotFound();
     }
 
-    private static async Task<IResult> AtualizarProduto(Guid id, AtualizarProdutoRequest request, ISender sender)
+    private static async Task<IResult> AtualizarProduto(Guid id, AtualizarProdutoRequest request, ISender sender, CancellationToken cancellationToken)
     {
-        await sender.Send(new AtualizarProdutoCommand(id, request.Nome, request.Descricao, request.Preco, request.CategoriaId));
+        await sender.Send(new AtualizarProdutoCommand(id, request.Nome, request.Descricao, request.Preco, request.CategoriaId), cancellationToken);
         return Results.NoContent();
     }
 
-    private static async Task<IResult> ExcluirProduto(Guid id, ISender sender)
+    private static async Task<IResult> ExcluirProduto(Guid id, ISender sender, CancellationToken cancellationToken)
     {
-        await sender.Send(new ExcluirProdutoCommand(id));
+        await sender.Send(new ExcluirProdutoCommand(id), cancellationToken);
         return Results.NoContent();
     }
 }

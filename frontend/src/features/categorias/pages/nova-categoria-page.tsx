@@ -15,6 +15,8 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
+import { FormRootError } from "@/components/form-root-error";
+import { aplicarErrosDaApi } from "@/lib/api-errors";
 
 export function NovaCategoriaPage() {
   const form = useForm<CriarCategoriaRequest>({
@@ -27,6 +29,8 @@ export function NovaCategoriaPage() {
     criarCategoriaMutation.mutate({
       nome: data.nome,
       descricao: data.descricao || undefined,
+    }, {
+      onError: (error) => aplicarErrosDaApi(error, form),
     });
   }
 
@@ -90,12 +94,7 @@ export function NovaCategoriaPage() {
                 )}
               />
 
-              {criarCategoriaMutation.isError && (
-                <p className="text-sm text-destructive">
-                  Não foi possível criar a categoria. Confira os dados e tente
-                  novamente.
-                </p>
-              )}
+              <FormRootError />
 
               <Button
                 type="submit"

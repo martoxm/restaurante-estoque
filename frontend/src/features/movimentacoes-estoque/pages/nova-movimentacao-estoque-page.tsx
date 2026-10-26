@@ -28,6 +28,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { FormRootError } from "@/components/form-root-error";
+import { aplicarErrosDaApi } from "@/lib/api-errors";
 
 type MovimentacaoEstoqueFormValues = {
   produtoId: string;
@@ -58,6 +60,8 @@ export function NovaMovimentacaoEstoquePage() {
       tipo: data.tipo,
       quantidade: Number(data.quantidade),
       observacoes: data.observacoes || undefined,
+    }, {
+      onError: (error) => aplicarErrosDaApi(error, form),
     });
   }
 
@@ -176,13 +180,7 @@ export function NovaMovimentacaoEstoquePage() {
                 )}
               />
 
-              {criarMovimentacaoEstoqueMutation.isError && (
-                <p className="text-sm text-destructive">
-                  Não foi possível registrar a movimentação. Confira se a
-                  quantidade de saída não é maior que o estoque disponível e
-                  tente novamente.
-                </p>
-              )}
+              <FormRootError />
 
               <Button
                 type="submit"

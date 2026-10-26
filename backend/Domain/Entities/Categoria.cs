@@ -7,9 +7,6 @@ public class Categoria : Entity
     public string Nome { get; private set; } = string.Empty;
     public string? Descricao { get; private set; }
 
-    private readonly List<Produto> _produtos = [];
-    public IReadOnlyCollection<Produto> Produtos => _produtos.AsReadOnly();
-
     public Guid RestauranteId { get; private set; }
 
     public DateTime CriadoEm { get; private set; }
@@ -42,9 +39,9 @@ public class Categoria : Entity
         Descricao = descricao?.Trim();
     }
 
-    public void GarantirQuePodeSerExcluida()
+    public void GarantirQuePodeSerExcluida(bool possuiProdutos)
     {
-        if (_produtos.Count > 0)
+        if (possuiProdutos)
             throw new DomainException("Não é possível excluir uma categoria que possui produtos vinculados.");
     }
 

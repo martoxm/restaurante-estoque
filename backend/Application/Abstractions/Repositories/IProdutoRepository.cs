@@ -22,4 +22,8 @@ public interface IProdutoRepository
     void Atualizar(Produto produto);
 
     void Remover(Produto produto);
+
+    Task<bool> ExisteParaCategoriaAsync(Guid categoriaId, CancellationToken cancellationToken);
+
+    Task<int> ContarPorCategoriaAsync(Guid categoriaId, CancellationToken cancellationToken);
 }

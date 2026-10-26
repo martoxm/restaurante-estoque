@@ -66,6 +66,16 @@ public class FakeProdutoRepository : IProdutoRepository
         _context.Produtos.Remove(produto);
     }
 
+    public async Task<bool> ExisteParaCategoriaAsync(Guid categoriaId, CancellationToken cancellationToken)
+    {
+        return await _context.Produtos.AnyAsync(produto => produto.CategoriaId == categoriaId, cancellationToken);
+    }
+
+    public async Task<int> ContarPorCategoriaAsync(Guid categoriaId, CancellationToken cancellationToken)
+    {
+        return await _context.Produtos.CountAsync(produto => produto.CategoriaId == categoriaId, cancellationToken);
+    }
+
     private static IQueryable<Produto> AplicarOrdenacao(IQueryable<Produto> query, OrdenacaoProduto ordenarPor, DirecaoOrdenacao direcaoOrdenacao)
     {
         return (ordenarPor, direcaoOrdenacao) switch

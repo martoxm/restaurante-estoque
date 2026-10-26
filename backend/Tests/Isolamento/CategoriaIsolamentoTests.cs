@@ -26,7 +26,7 @@ public class CategoriaIsolamentoTests
             pagina: 1, tamanhoPagina: 10, nome: null, direcaoOrdenacao: DirecaoOrdenacao.Asc, CancellationToken.None);
 
         Assert.Equal(1, totalItens);
-        Assert.Equal("Grãos", Assert.Single(itens).Nome);
+        Assert.Equal("Grãos", Assert.Single(itens).Categoria.Nome);
     }
 
     [Fact]

@@ -28,9 +28,9 @@ public class MovimentacaoEstoqueEndpointsModule : IEndpointModule
             .Produces(StatusCodes.Status404NotFound);
     }
 
-    private static async Task<IResult> CriarMovimentacaoEstoque(CriarMovimentacaoEstoqueCommand command, ISender sender)
+    private static async Task<IResult> CriarMovimentacaoEstoque(CriarMovimentacaoEstoqueCommand command, ISender sender, CancellationToken cancellationToken)
     {
-        var id = await sender.Send(command);
+        var id = await sender.Send(command, cancellationToken);
         return Results.Created($"/api/v1/movimentacoes-estoque/{id}", new MovimentacaoEstoqueCriadaResponse(id));
     }
 }

@@ -61,34 +61,34 @@ public class CategoriaEndpointsModule : IEndpointModule
             .Produces(StatusCodes.Status404NotFound);
     }
 
-    private static async Task<IResult> CriarCategoria(CriarCategoriaCommand command, ISender sender)
+    private static async Task<IResult> CriarCategoria(CriarCategoriaCommand command, ISender sender, CancellationToken cancellationToken)
     {
-        var id = await sender.Send(command);
+        var id = await sender.Send(command, cancellationToken);
         return Results.Created($"/api/v1/categorias/{id}", new CategoriaCriadaResponse(id));
     }
 
-    private static async Task<IResult> ListarCategorias([AsParameters] ListarCategoriasRequest request, ISender sender)
+    private static async Task<IResult> ListarCategorias([AsParameters] ListarCategoriasRequest request, ISender sender, CancellationToken cancellationToken)
     {
         var query = new ListarCategoriasQuery(request.Pagina, request.TamanhoPagina, request.Nome, request.DirecaoOrdenacao);
-        var result = await sender.Send(query);
+        var result = await sender.Send(query, cancellationToken);
         return Results.Ok(result);
     }
 
-    private static async Task<IResult> ObterCategoriaPorId(Guid id, ISender sender)
+    private static async Task<IResult> ObterCategoriaPorId(Guid id, ISender sender, CancellationToken cancellationToken)
     {
-        var result = await sender.Send(new ObterCategoriaPorIdQuery(id));
+        var result = await sender.Send(new ObterCategoriaPorIdQuery(id), cancellationToken);
         return result is not null ? Results.Ok(result) : Results.NotFound();
     }
 
-    private static async Task<IResult> AtualizarCategoria(Guid id, AtualizarCategoriaRequest request, ISender sender)
+    private static async Task<IResult> AtualizarCategoria(Guid id, AtualizarCategoriaRequest request, ISender sender, CancellationToken cancellationToken)
     {
-        await sender.Send(new AtualizarCategoriaCommand(id, request.Nome, request.Descricao));
+        await sender.Send(new AtualizarCategoriaCommand(id, request.Nome, request.Descricao), cancellationToken);
         return Results.NoContent();
     }
 
-    private static async Task<IResult> ExcluirCategoria(Guid id, ISender sender)
+    private static async Task<IResult> ExcluirCategoria(Guid id, ISender sender, CancellationToken cancellationToken)
     {
-        await sender.Send(new ExcluirCategoriaCommand(id));
+        await sender.Send(new ExcluirCategoriaCommand(id), cancellationToken);
         return Results.NoContent();
     }
 }

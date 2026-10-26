@@ -60,34 +60,34 @@ public class FornecedorEndpointsModule : IEndpointModule
             .Produces(StatusCodes.Status404NotFound);
     }
 
-    private static async Task<IResult> CriarFornecedor(CriarFornecedorCommand command, ISender sender)
+    private static async Task<IResult> CriarFornecedor(CriarFornecedorCommand command, ISender sender, CancellationToken cancellationToken)
     {
-        var id = await sender.Send(command);
+        var id = await sender.Send(command, cancellationToken);
         return Results.Created($"/api/v1/fornecedores/{id}", new FornecedorCriadoResponse(id));
     }
 
-    private static async Task<IResult> ListarFornecedores([AsParameters] ListarFornecedoresRequest request, ISender sender)
+    private static async Task<IResult> ListarFornecedores([AsParameters] ListarFornecedoresRequest request, ISender sender, CancellationToken cancellationToken)
     {
         var query = new ListarFornecedoresQuery(request.Pagina, request.TamanhoPagina, request.Nome, request.DirecaoOrdenacao);
-        var result = await sender.Send(query);
+        var result = await sender.Send(query, cancellationToken);
         return Results.Ok(result);
     }
 
-    private static async Task<IResult> ObterFornecedorPorId(Guid id, ISender sender)
+    private static async Task<IResult> ObterFornecedorPorId(Guid id, ISender sender, CancellationToken cancellationToken)
     {
-        var result = await sender.Send(new ObterFornecedorPorIdQuery(id));
+        var result = await sender.Send(new ObterFornecedorPorIdQuery(id), cancellationToken);
         return result is not null ? Results.Ok(result) : Results.NotFound();
     }
 
-    private static async Task<IResult> AtualizarFornecedor(Guid id, AtualizarFornecedorRequest request, ISender sender)
+    private static async Task<IResult> AtualizarFornecedor(Guid id, AtualizarFornecedorRequest request, ISender sender, CancellationToken cancellationToken)
     {
-        await sender.Send(new AtualizarFornecedorCommand(id, request.Nome, request.Telefone, request.Email));
+        await sender.Send(new AtualizarFornecedorCommand(id, request.Nome, request.Telefone, request.Email), cancellationToken);
         return Results.NoContent();
     }
 
-    private static async Task<IResult> ExcluirFornecedor(Guid id, ISender sender)
+    private static async Task<IResult> ExcluirFornecedor(Guid id, ISender sender, CancellationToken cancellationToken)
     {
-        await sender.Send(new ExcluirFornecedorCommand(id));
+        await sender.Send(new ExcluirFornecedorCommand(id), cancellationToken);
         return Results.NoContent();
     }
 }

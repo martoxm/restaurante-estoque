@@ -4,7 +4,6 @@ import { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import Link from "next/link";
 import { useParams } from "next/navigation";
-import { isAxiosError } from "axios";
 import { useFornecedor } from "@/features/fornecedores/hooks/useFornecedor";
 import { useAtualizarFornecedor } from "@/features/fornecedores/hooks/useAtualizarFornecedor";
 import type { AtualizarFornecedorRequest } from "@/features/fornecedores/types/fornecedor";
@@ -19,6 +18,8 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
+import { FormRootError } from "@/components/form-root-error";
+import { aplicarErrosDaApi } from "@/lib/api-errors";
 
 export function EditarFornecedorPage() {
   const params = useParams<{ id: string }>();
@@ -50,6 +51,8 @@ export function EditarFornecedorPage() {
         telefone: data.telefone || undefined,
         email: data.email || undefined,
       },
+    }, {
+      onError: (error) => aplicarErrosDaApi(error, form),
     });
   }
 
@@ -158,18 +161,7 @@ export function EditarFornecedorPage() {
                   )}
                 />
 
-                {atualizarFornecedorMutation.isError && (
-                  <p className="text-sm text-destructive">
-                    {/* Na Etapa 27 do backend, editar fornecedor virou ação de
-                    Admin. O botão "Editar" da listagem já some pra quem não é
-                    Admin, mas esse 403 cobre quem chega aqui digitando a URL
-                    direto. */}
-                    {isAxiosError(atualizarFornecedorMutation.error) &&
-                    atualizarFornecedorMutation.error.response?.status === 403
-                      ? "Você não tem permissão para editar fornecedores — essa ação é restrita a administradores."
-                      : "Não foi possível salvar as alterações. Confira os dados e tente novamente."}
-                  </p>
-                )}
+                <FormRootError />
 
                 <Button
                   type="submit"

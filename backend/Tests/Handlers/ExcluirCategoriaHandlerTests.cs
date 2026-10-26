@@ -20,7 +20,7 @@ public class ExcluirCategoriaHandlerTests
         context.Categorias.Add(categoria);
         await context.SaveChangesAsync();
 
-        var handler = new ExcluirCategoriaHandler(new FakeCategoriaRepository(context), context);
+        var handler = new ExcluirCategoriaHandler(new FakeCategoriaRepository(context), new FakeProdutoRepository(context), context);
 
         await handler.Handle(new ExcluirCategoriaCommand(categoria.Id), CancellationToken.None);
 
@@ -37,7 +37,7 @@ public class ExcluirCategoriaHandlerTests
         await context.SaveChangesAsync();
         context.ChangeTracker.Clear();
 
-        var handler = new ExcluirCategoriaHandler(new FakeCategoriaRepository(context), context);
+        var handler = new ExcluirCategoriaHandler(new FakeCategoriaRepository(context), new FakeProdutoRepository(context), context);
 
         var excecao = await Assert.ThrowsAsync<DomainException>(() =>
             handler.Handle(new ExcluirCategoriaCommand(categoria.Id), CancellationToken.None));
@@ -50,7 +50,7 @@ public class ExcluirCategoriaHandlerTests
     public async Task Handle_CategoriaInexistente_DeveLancarNaoEncontradoException()
     {
         using var context = TestDbContextFactory.Create();
-        var handler = new ExcluirCategoriaHandler(new FakeCategoriaRepository(context), context);
+        var handler = new ExcluirCategoriaHandler(new FakeCategoriaRepository(context), new FakeProdutoRepository(context), context);
 
         await Assert.ThrowsAsync<NaoEncontradoException>(() =>
             handler.Handle(new ExcluirCategoriaCommand(Guid.NewGuid()), CancellationToken.None));

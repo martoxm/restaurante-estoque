@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { isAxiosError } from "axios";
+import { obterMensagemErro } from "@/lib/api-errors";
 import { useCategorias } from "@/features/categorias/hooks/useCategorias";
 import { useUsuarioAtual } from "@/features/auth/hooks/useUsuarioAtual";
 import { useExcluirCategoria } from "@/features/categorias/hooks/useExcluirCategoria";
@@ -28,19 +28,8 @@ export function ListaCategoriasPage() {
 
     setErroExclusao(null);
     excluirCategoriaMutation.mutate(id, {
-      onError: (error) => {
-        if (isAxiosError(error) && error.response?.status === 403) {
-          setErroExclusao(
-            "Você não tem permissão para excluir categorias — essa ação é restrita a administradores."
-          );
-          return;
-        }
-
-        const detail = isAxiosError<{ detail?: string }>(error)
-          ? error.response?.data?.detail
-          : undefined;
-        setErroExclusao(detail ?? "Não foi possível excluir a categoria.");
-      },
+      onError: (error) =>
+        setErroExclusao(obterMensagemErro(error, "Não foi possível excluir a categoria.")),
     });
   }
 

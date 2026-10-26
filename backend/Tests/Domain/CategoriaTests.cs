@@ -50,9 +50,19 @@ public class CategoriaTests
     {
         var categoria = Categoria.Criar(DadosTeste.RestauranteId, "Bebidas", CriadoEm);
 
-        var excecao = Record.Exception(categoria.GarantirQuePodeSerExcluida);
+        var excecao = Record.Exception(() => categoria.GarantirQuePodeSerExcluida(possuiProdutos: false));
 
         Assert.Null(excecao);
+    }
+
+    [Fact]
+    public void GarantirQuePodeSerExcluida_ComProdutos_DeveLancarDomainException()
+    {
+        var categoria = Categoria.Criar(DadosTeste.RestauranteId, "Bebidas", CriadoEm);
+
+        var excecao = Assert.Throws<DomainException>(() => categoria.GarantirQuePodeSerExcluida(possuiProdutos: true));
+
+        Assert.Equal("Não é possível excluir uma categoria que possui produtos vinculados.", excecao.Message);
     }
 
     [Fact]

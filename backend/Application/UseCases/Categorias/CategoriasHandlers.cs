@@ -41,11 +41,16 @@ public class CriarCategoriaHandler : IRequestHandler<CriarCategoriaCommand, Guid
 public class ExcluirCategoriaHandler : IRequestHandler<ExcluirCategoriaCommand>
 {
     private readonly ICategoriaRepository _categoriaRepository;
+    private readonly IProdutoRepository _produtoRepository;
     private readonly IApplicationDbContext _context;
 
-    public ExcluirCategoriaHandler(ICategoriaRepository categoriaRepository, IApplicationDbContext context)
+    public ExcluirCategoriaHandler(
+        ICategoriaRepository categoriaRepository,
+        IProdutoRepository produtoRepository,
+        IApplicationDbContext context)
     {
         _categoriaRepository = categoriaRepository;
+        _produtoRepository = produtoRepository;
         _context = context;
     }
 
@@ -56,7 +61,9 @@ public class ExcluirCategoriaHandler : IRequestHandler<ExcluirCategoriaCommand>
         if (categoria is null)
             throw new NaoEncontradoException($"Categoria com Id '{request.Id}' não encontrada.");
 
-        categoria.GarantirQuePodeSerExcluida();
+        var possuiProdutos = await _produtoRepository.ExisteParaCategoriaAsync(categoria.Id, cancellationToken);
+
+        categoria.GarantirQuePodeSerExcluida(possuiProdutos);
 
         _categoriaRepository.Remover(categoria);
         await _context.SaveChangesAsync(cancellationToken);
@@ -108,7 +115,7 @@ public class ListarCategoriasHandler : IRequestHandler<ListarCategoriasQuery, Re
             cancellationToken);
 
         var itens = categorias
-            .Select(categoria => categoria.ParaItemListaDto())
+            .Select(item => item.Categoria.ParaItemListaDto(item.QuantidadeProdutos))
             .ToList();
 
         return new ResultadoPaginado<CategoriaItemListaDto>(itens, request.Pagina, request.TamanhoPagina, totalItens);
@@ -118,10 +125,12 @@ public class ListarCategoriasHandler : IRequestHandler<ListarCategoriasQuery, Re
 public class ObterCategoriaPorIdHandler : IRequestHandler<ObterCategoriaPorIdQuery, CategoriaDetalhesDto?>
 {
     private readonly ICategoriaRepository _categoriaRepository;
+    private readonly IProdutoRepository _produtoRepository;
 
-    public ObterCategoriaPorIdHandler(ICategoriaRepository categoriaRepository)
+    public ObterCategoriaPorIdHandler(ICategoriaRepository categoriaRepository, IProdutoRepository produtoRepository)
     {
         _categoriaRepository = categoriaRepository;
+        _produtoRepository = produtoRepository;
     }
 
     public async Task<CategoriaDetalhesDto?> Handle(ObterCategoriaPorIdQuery request, CancellationToken cancellationToken)
@@ -131,23 +140,25 @@ public class ObterCategoriaPorIdHandler : IRequestHandler<ObterCategoriaPorIdQue
         if (categoria is null)
             return null;
 
-        return categoria.ParaDetalhesDto();
+        var quantidadeProdutos = await _produtoRepository.ContarPorCategoriaAsync(categoria.Id, cancellationToken);
+
+        return categoria.ParaDetalhesDto(quantidadeProdutos);
     }
 }
 
 file static class CategoriaMapeamentos
 {
-    public static CategoriaDetalhesDto ParaDetalhesDto(this Categoria categoria) => new(
+    public static CategoriaDetalhesDto ParaDetalhesDto(this Categoria categoria, int quantidadeProdutos) => new(
         categoria.Id,
         categoria.Nome,
         categoria.Descricao,
-        categoria.Produtos.Count,
+        quantidadeProdutos,
         categoria.CriadoEm);
 
-    public static CategoriaItemListaDto ParaItemListaDto(this Categoria categoria) => new(
+    public static CategoriaItemListaDto ParaItemListaDto(this Categoria categoria, int quantidadeProdutos) => new(
         categoria.Id,
         categoria.Nome,
         categoria.Descricao,
-        categoria.Produtos.Count,
+        quantidadeProdutos,
         categoria.CriadoEm);
 }

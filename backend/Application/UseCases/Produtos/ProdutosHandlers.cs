@@ -1,4 +1,3 @@
-using System.Net;
 using MediatR;
 using RestauranteEstoque.Application.Abstractions.Repositories;
 using RestauranteEstoque.Application.Abstractions.Services;
@@ -6,10 +5,10 @@ using RestauranteEstoque.Application.Common.Events;
 using RestauranteEstoque.Application.Common.Exceptions;
 using RestauranteEstoque.Application.Common.Models;
 using RestauranteEstoque.Contracts.Produtos;
-using RestauranteEstoque.Domain.Common;
 using RestauranteEstoque.Domain.Entities;
 using RestauranteEstoque.Domain.Events;
 using RestauranteEstoque.Domain.ValueObjects;
+using System.Net;
 
 namespace RestauranteEstoque.Application.UseCases.Produtos;
 

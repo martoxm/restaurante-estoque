@@ -28,6 +28,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { FormRootError } from "@/components/form-root-error";
+import { aplicarErrosDaApi } from "@/lib/api-errors";
 
 type ProdutoFormValues = Omit<
   CriarProdutoRequest,
@@ -59,6 +61,8 @@ export function NovoProdutoPage() {
       preco: Number(data.preco),
       categoriaId: data.categoriaId,
       quantidadeInicial: Number(data.quantidadeInicial),
+    }, {
+      onError: (error) => aplicarErrosDaApi(error, form),
     });
   }
 
@@ -194,12 +198,7 @@ export function NovoProdutoPage() {
                 )}
               />
 
-              {criarProdutoMutation.isError && (
-                <p className="text-sm text-destructive">
-                  Não foi possível criar o produto. Confira os dados e tente
-                  novamente.
-                </p>
-              )}
+              <FormRootError />
 
               <Button
                 type="submit"

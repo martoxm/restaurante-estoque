@@ -27,6 +27,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { FormRootError } from "@/components/form-root-error";
+import { aplicarErrosDaApi } from "@/lib/api-errors";
 
 type ProdutoFormValues = Omit<AtualizarProdutoRequest, "preco"> & {
   preco: string;
@@ -111,6 +113,8 @@ function EditarProdutoForm({
         preco: Number(data.preco),
         categoriaId: data.categoriaId,
       },
+    }, {
+      onError: (error) => aplicarErrosDaApi(error, form),
     });
   }
 
@@ -220,12 +224,7 @@ function EditarProdutoForm({
               </Link>
             </p>
 
-            {atualizarProdutoMutation.isError && (
-              <p className="text-sm text-destructive">
-                Não foi possível salvar as alterações. Confira os dados e
-                tente novamente.
-              </p>
-            )}
+            <FormRootError />
 
             <Button
               type="submit"

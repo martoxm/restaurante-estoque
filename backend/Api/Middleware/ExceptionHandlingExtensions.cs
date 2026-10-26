@@ -1,3 +1,4 @@
+using System.Text.Json;
 using FluentValidation;
 using Microsoft.AspNetCore.Diagnostics;
 using RestauranteEstoque.Application.Common.Exceptions;
@@ -18,12 +19,15 @@ public static class ExceptionHandlingExtensions
                 if (exception is ValidationException validationException)
                 {
                     var errors = validationException.Errors
-                        .GroupBy(failure => failure.PropertyName)
+                        .GroupBy(failure => ConverterNomeDoCampo(failure.PropertyName))
                         .ToDictionary(
                             group => group.Key,
-                            group => group.Select(failure => failure.ErrorMessage).ToArray());
+                            group => group.Select(failure => failure.ErrorMessage).Distinct().ToArray());
 
-                    await Results.ValidationProblem(errors).ExecuteAsync(context);
+                    await Results.ValidationProblem(
+                        errors,
+                        title: "Um ou mais campos estão inválidos.")
+                        .ExecuteAsync(context);
                     return;
                 }
 
@@ -63,11 +67,18 @@ public static class ExceptionHandlingExtensions
                     return;
                 }
 
-                await Results.Problem(statusCode: StatusCodes.Status500InternalServerError)
+                await Results.Problem(
+                    detail: "Ocorreu um erro inesperado. Tente novamente em instantes.",
+                    statusCode: StatusCodes.Status500InternalServerError)
                     .ExecuteAsync(context);
             });
         });
 
         return app;
     }
+
+    private static string ConverterNomeDoCampo(string nomeDaPropriedade) =>
+        string.Join('.', nomeDaPropriedade
+            .Split('.')
+            .Select(parte => JsonNamingPolicy.CamelCase.ConvertName(parte)));
 }

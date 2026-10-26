@@ -34,7 +34,7 @@ public class ProdutoConfiguration : IEntityTypeConfiguration<Produto>
             .IsRequired();
 
         builder.HasOne(p => p.Categoria)
-            .WithMany(c => c.Produtos)
+            .WithMany()
             .HasForeignKey(p => p.CategoriaId)
             .IsRequired();
     }

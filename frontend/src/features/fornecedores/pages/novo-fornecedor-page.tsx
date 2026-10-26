@@ -15,6 +15,8 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
+import { FormRootError } from "@/components/form-root-error";
+import { aplicarErrosDaApi } from "@/lib/api-errors";
 
 export function NovoFornecedorPage() {
   const form = useForm<CriarFornecedorRequest>({
@@ -28,6 +30,8 @@ export function NovoFornecedorPage() {
       nome: data.nome,
       telefone: data.telefone || undefined,
       email: data.email || undefined,
+    }, {
+      onError: (error) => aplicarErrosDaApi(error, form),
     });
   }
 
@@ -115,12 +119,7 @@ export function NovoFornecedorPage() {
                 )}
               />
 
-              {criarFornecedorMutation.isError && (
-                <p className="text-sm text-destructive">
-                  Não foi possível criar o fornecedor. Confira os dados e
-                  tente novamente.
-                </p>
-              )}
+              <FormRootError />
 
               <Button
                 type="submit"

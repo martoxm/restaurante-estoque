@@ -7,7 +7,7 @@ public interface ICategoriaRepository
 {
     Task<Categoria?> ObterPorIdAsync(Guid id, CancellationToken cancellationToken);
 
-    Task<(IReadOnlyList<Categoria> Itens, int TotalItens)> ListarPaginadoAsync(
+    Task<(IReadOnlyList<(Categoria Categoria, int QuantidadeProdutos)> Itens, int TotalItens)> ListarPaginadoAsync(
         int pagina,
         int tamanhoPagina,
         string? nome,

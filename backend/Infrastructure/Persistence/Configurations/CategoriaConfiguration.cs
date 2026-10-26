@@ -23,8 +23,5 @@ public class CategoriaConfiguration : IEntityTypeConfiguration<Categoria>
 
         builder.Property(c => c.CriadoEm)
             .IsRequired();
-
-        builder.Navigation(c => c.Produtos)
-            .UsePropertyAccessMode(PropertyAccessMode.Field);
     }
 }

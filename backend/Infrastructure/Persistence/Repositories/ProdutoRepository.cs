@@ -57,6 +57,16 @@ public class ProdutoRepository : IProdutoRepository
     public void Atualizar(Produto produto) => _context.Entry(produto).State = EntityState.Modified;
  
     public void Remover(Produto produto) => _context.Produtos.Remove(produto);
+
+    public async Task<bool> ExisteParaCategoriaAsync(Guid categoriaId, CancellationToken cancellationToken)
+    {
+        return await _context.Produtos.AnyAsync(produto => produto.CategoriaId == categoriaId, cancellationToken);
+    }
+
+    public async Task<int> ContarPorCategoriaAsync(Guid categoriaId, CancellationToken cancellationToken)
+    {
+        return await _context.Produtos.CountAsync(produto => produto.CategoriaId == categoriaId, cancellationToken);
+    }
     
     private static IQueryable<Produto> AplicarOrdenacao(IQueryable<Produto> query, OrdenacaoProduto ordenarPor, DirecaoOrdenacao direcaoOrdenacao)
     {

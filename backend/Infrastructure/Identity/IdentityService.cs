@@ -37,7 +37,7 @@ public class IdentityService : IIdentityService
         if (!result.Succeeded)
         {
             var failures = result.Errors
-                .Select(error => new ValidationFailure(nameof(senha), error.Description));
+                .Select(error => new ValidationFailure(CampoDoErro(error.Code), error.Description));
 
             throw new ValidationException(failures);
         }
@@ -45,6 +45,17 @@ public class IdentityService : IIdentityService
         await _userManager.AddToRoleAsync(usuario, RoleNames.Funcionario);
 
         return usuario.Id;
+    }
+
+    private static string CampoDoErro(string codigo)
+    {
+        if (codigo.StartsWith("Password", StringComparison.Ordinal))
+            return "Senha";
+
+        if (codigo.EndsWith("Email", StringComparison.Ordinal) || codigo.EndsWith("UserName", StringComparison.Ordinal))
+            return "Email";
+
+        return string.Empty;
     }
 
     public async Task<UsuarioAutenticado?> ValidarCredenciaisAsync(string email, string senha, CancellationToken cancellationToken)

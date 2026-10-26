@@ -21,6 +21,8 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
+import { FormRootError } from "@/components/form-root-error";
+import { aplicarErrosDaApi } from "@/lib/api-errors";
 
 export function LoginPage() {
   const form = useForm<LoginRequest>({
@@ -30,7 +32,9 @@ export function LoginPage() {
   const loginMutation = useLogin();
 
   function onSubmit(data: LoginRequest) {
-    loginMutation.mutate(data);
+    loginMutation.mutate(data, {
+      onError: (error) => aplicarErrosDaApi(error, form),
+    });
   }
 
   return (
@@ -97,11 +101,7 @@ export function LoginPage() {
                 )}
               />
 
-              {loginMutation.isError && (
-                <p className="text-sm text-destructive">
-                  E-mail ou senha inválidos.
-                </p>
-              )}
+              <FormRootError />
 
               <Button
                 type="submit"

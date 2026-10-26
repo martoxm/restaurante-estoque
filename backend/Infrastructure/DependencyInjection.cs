@@ -38,6 +38,7 @@ public static class DependencyInjection
                 options.Password.RequiredLength = 6;
             })
             .AddRoles<ApplicationRole>()
+            .AddErrorDescriber<IdentityErrorDescriberPtBr>()
             .AddEntityFrameworkStores<AppDbContext>()
             .AddDefaultTokenProviders();
 
