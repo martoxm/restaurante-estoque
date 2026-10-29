@@ -133,10 +133,6 @@ export function NovoProdutoPage() {
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Categoria</FormLabel>
-                    {/* Repara que o Select do shadcn/ui não é um <select>
-                        nativo, então ele não se liga sozinho no
-                        react-hook-form como o Input. Por isso a gente passa
-                        value/onValueChange na mão, em vez de {...field}. */}
                     <Select
                       value={field.value}
                       onValueChange={field.onChange}

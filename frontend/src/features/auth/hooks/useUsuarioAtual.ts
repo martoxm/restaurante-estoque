@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import Cookies from "js-cookie";
+import { obterToken } from "@/lib/sessao";
 import { decodeToken } from "@/lib/jwt";
 import { ROLE_CLAIM, type DecodedToken } from "@/features/auth/types/auth";
 
@@ -12,7 +12,7 @@ export function useUsuarioAtual() {
   const [restauranteId, setRestauranteId] = useState<string | undefined>();
 
   useEffect(() => {
-    const token = Cookies.get("token");
+    const token = obterToken();
     const decoded = token ? decodeToken<DecodedToken>(token) : null;
     const rawRoles = decoded?.[ROLE_CLAIM] as string | string[] | undefined;
 

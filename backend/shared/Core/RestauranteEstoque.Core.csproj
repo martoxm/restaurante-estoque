@@ -1,0 +1,25 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <!-- Etapa M1: o "Prover.Core" do nosso projeto. Tudo o que vai ser igual em
+       todas as APIs (Estoque hoje; Identidade e Vendas depois) mora aqui, e cada
+       API só referencia esse projeto em vez de copiar o código. Repara que é UM
+       projeto só, igual o pacote da Prover — por isso ele precisa do shared
+       framework do ASP.NET Core (middleware, JWT), mesmo que o Domain só use as
+       pastas Domain/ daqui. -->
+  <ItemGroup>
+    <FrameworkReference Include="Microsoft.AspNetCore.App" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="FluentValidation" Version="12.1.1" />
+    <PackageReference Include="MediatR" Version="14.2.0" />
+    <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="10.0.12" />
+  </ItemGroup>
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+</Project>

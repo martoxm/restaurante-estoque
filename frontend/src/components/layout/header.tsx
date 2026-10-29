@@ -1,7 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import Cookies from "js-cookie";
+import { limparSessao } from "@/lib/sessao";
 import { LogOut, Warehouse } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { MobileNav } from "@/components/layout/mobile-nav";
@@ -11,7 +11,7 @@ export function Header() {
   const router = useRouter();
 
   function handleLogout() {
-    Cookies.remove("token", { path: "/" });
+    limparSessao();
     router.push("/login");
   }
 

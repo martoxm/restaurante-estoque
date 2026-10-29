@@ -17,9 +17,6 @@ export function Providers({ children }: { children: React.ReactNode }) {
     >
       <QueryClientProvider client={queryClient}>
         {children}
-        {/* Esse é um painel visual que só aparece em desenvolvimento. Ele mostra
-            todas as queries ativas, o status de cada uma (loading/success/error)
-            e o cache — é ótimo pra aprender como o TanStack Query funciona por dentro. */}
         <ReactQueryDevtools initialIsOpen={false} />
       </QueryClientProvider>
     </ThemeProvider>

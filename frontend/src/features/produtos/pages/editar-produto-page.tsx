@@ -67,16 +67,6 @@ export function EditarProdutoPage() {
         </p>
       )}
 
-      {/* Repara que a gente só monta o formulário quando o produto E as
-          categorias já chegaram, e passa os dois como props (em vez de usar
-          form.reset() num useEffect depois de montar com os campos vazios).
-          Isso importa porque o <Select> (Radix) só reconhece o valor inicial
-          da categoria se ele vier certo desde o primeiro render. Setar o
-          valor DEPOIS que o <Select> já montou (via reset) não é confiável: o
-          campo fica com o valor certo por um instante e logo volta a ficar
-          vazio (foi isso que a gente viu no bug da Etapa 22c). Por isso o
-          formulário virou um componente à parte, que só nasce quando já tem
-          os dados prontos pra calcular os defaultValues certos de primeira. */}
       {produto && categorias && (
         <EditarProdutoForm id={id} produto={produto} categorias={categorias} />
       )}
@@ -214,9 +204,6 @@ function EditarProdutoForm({
               )}
             />
 
-            {/* A quantidade em estoque não dá pra editar aqui — ela só muda
-                via movimentação (Entrada/Saída), ver CriarMovimentacaoEstoqueCommand
-                no backend. A gente mostra só como referência. */}
             <p className="text-sm text-muted-foreground">
               Estoque atual: {produto.quantidadeEmEstoque}{" "}
               <Link href="/movimentacoes/nova" className="underline">
