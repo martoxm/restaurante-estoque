@@ -1,4 +1,7 @@
 <Solution>
+  <Folder Name="/AppHost/">
+    <Project Path="AppHost/RestauranteEstoque.AppHost.csproj" />
+  </Folder>
   <Folder Name="/services/" />
   <Folder Name="/services/Estoque/">
     <Project Path="services/Estoque/Api/RestauranteEstoque.Api.csproj" />
@@ -16,7 +19,16 @@
     <Project Path="services/Identidade/Infrastructure/RestauranteEstoque.Identidade.Infrastructure.csproj" />
     <Project Path="services/Identidade/Tests/RestauranteEstoque.Identidade.Tests.csproj" />
   </Folder>
+  <Folder Name="/services/Vendas/">
+    <Project Path="services/Vendas/Api/RestauranteEstoque.Vendas.Api.csproj" />
+    <Project Path="services/Vendas/Application/RestauranteEstoque.Vendas.Application.csproj" />
+    <Project Path="services/Vendas/Contracts/RestauranteEstoque.Vendas.Contracts.csproj" />
+    <Project Path="services/Vendas/Domain/RestauranteEstoque.Vendas.Domain.csproj" />
+    <Project Path="services/Vendas/Infrastructure/RestauranteEstoque.Vendas.Infrastructure.csproj" />
+    <Project Path="services/Vendas/Tests/RestauranteEstoque.Vendas.Tests.csproj" />
+  </Folder>
   <Folder Name="/shared/">
     <Project Path="shared/Core/RestauranteEstoque.Core.csproj" />
+    <Project Path="shared/ServiceDefaults/RestauranteEstoque.ServiceDefaults.csproj" />
   </Folder>
 </Solution>

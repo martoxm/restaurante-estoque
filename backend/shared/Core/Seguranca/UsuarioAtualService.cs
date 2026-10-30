@@ -4,7 +4,7 @@ using RestauranteEstoque.Core.Application.Exceptions;
 
 namespace RestauranteEstoque.Core.Seguranca;
 
-public class UsuarioAtualService : IUsuarioAtualService
+public class UsuarioAtualService : IUsuarioAtualService, IDefinidorRestauranteAtual
 {
     public const string RestauranteIdClaimType = "restauranteId";
 
@@ -15,10 +15,17 @@ public class UsuarioAtualService : IUsuarioAtualService
         _httpContextAccessor = httpContextAccessor;
     }
 
+    private Guid? _restauranteDefinido;
+
+    public void Definir(Guid restauranteId) => _restauranteDefinido = restauranteId;
+
     public Guid? RestauranteId
     {
         get
         {
+            if (_restauranteDefinido is not null)
+                return _restauranteDefinido;
+
             var claimValue = _httpContextAccessor.HttpContext?.User
                 .FindFirst(RestauranteIdClaimType)?.Value;
 

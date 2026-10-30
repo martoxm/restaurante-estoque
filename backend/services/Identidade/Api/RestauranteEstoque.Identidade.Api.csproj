@@ -5,6 +5,7 @@
     <ProjectReference Include="..\Infrastructure\RestauranteEstoque.Identidade.Infrastructure.csproj" />
     <ProjectReference Include="..\Contracts\RestauranteEstoque.Identidade.Contracts.csproj" />
     <ProjectReference Include="..\..\..\shared\Core\RestauranteEstoque.Core.csproj" />
+    <ProjectReference Include="..\..\..\shared\ServiceDefaults\RestauranteEstoque.ServiceDefaults.csproj" />
   </ItemGroup>
 
   <ItemGroup>

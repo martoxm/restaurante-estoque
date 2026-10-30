@@ -1,0 +1,26 @@
+<Solution>
+  <Folder Name="/Api/">
+    <Project Path="Api/RestauranteEstoque.Vendas.Api.csproj" />
+  </Folder>
+  <Folder Name="/Application/">
+    <Project Path="Application/RestauranteEstoque.Vendas.Application.csproj" />
+  </Folder>
+  <Folder Name="/Contracts/">
+    <Project Path="Contracts/RestauranteEstoque.Vendas.Contracts.csproj" />
+  </Folder>
+  <Folder Name="/Core/">
+    <Project Path="../../shared/Core/RestauranteEstoque.Core.csproj" />
+  </Folder>
+  <Folder Name="/Domain/">
+    <Project Path="Domain/RestauranteEstoque.Vendas.Domain.csproj" />
+  </Folder>
+  <Folder Name="/Infrastructure/">
+    <Project Path="Infrastructure/RestauranteEstoque.Vendas.Infrastructure.csproj" />
+  </Folder>
+  <Folder Name="/ServiceDefaults/">
+    <Project Path="../../shared/ServiceDefaults/RestauranteEstoque.ServiceDefaults.csproj" />
+  </Folder>
+  <Folder Name="/Tests/">
+    <Project Path="Tests/RestauranteEstoque.Vendas.Tests.csproj" />
+  </Folder>
+</Solution>

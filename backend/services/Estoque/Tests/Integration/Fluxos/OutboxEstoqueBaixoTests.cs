@@ -8,6 +8,8 @@ using RestauranteEstoque.Domain.Enums;
 using RestauranteEstoque.Core.Domain.ValueObjects;
 using RestauranteEstoque.Tests.Common;
 using RestauranteEstoque.Tests.Integration.Fixtures;
+using System.Text.Json;
+using RestauranteEstoque.Core.Mensageria.Contratos;
 
 namespace RestauranteEstoque.Tests.Integration.Fluxos;
 
@@ -28,12 +30,12 @@ public sealed class OutboxEstoqueBaixoTests(SqlServerFixture fixture)
 
         await using var contexto = fixture.CriarContexto(UsuarioDo(restauranteId));
         var produtoAtualizado = await contexto.Produtos.SingleAsync(p => p.Id == produto.Id);
-        var avisos = await contexto.OutboxEmails.Where(o => o.RestauranteId == restauranteId).ToListAsync();
+        var avisos = await contexto.OutboxMensagens.Where(o => o.Conteudo.Contains(restauranteId.ToString())).ToListAsync();
 
         Assert.Equal(Quantidade.Criar(7), produtoAtualizado.QuantidadeEmEstoque);
         Assert.Equal(1, await contexto.MovimentacoesEstoque.CountAsync(m => m.ProdutoId == produto.Id));
         var aviso = Assert.Single(avisos);
-        Assert.Contains(produto.Nome, aviso.Assunto);
+        Assert.Contains(produto.Nome, JsonSerializer.Deserialize<EnviarEmailMensagem>(aviso.Conteudo)!.Assunto);
         Assert.Null(aviso.ProcessadoEm);
     }
 
@@ -48,7 +50,7 @@ public sealed class OutboxEstoqueBaixoTests(SqlServerFixture fixture)
         await EnviarAsync(new CriarMovimentacaoEstoqueCommand(produto.Id, TipoMovimentacaoEstoque.Saida, 5), restauranteId);
 
         await using var contexto = fixture.CriarContexto(UsuarioDo(restauranteId));
-        Assert.False(await contexto.OutboxEmails.AnyAsync(o => o.RestauranteId == restauranteId));
+        Assert.False(await contexto.OutboxMensagens.AnyAsync(o => o.Conteudo.Contains(restauranteId.ToString())));
     }
 
     [DockerFact]
@@ -66,7 +68,7 @@ public sealed class OutboxEstoqueBaixoTests(SqlServerFixture fixture)
         var produtoNoBanco = await contexto.Produtos.SingleAsync(p => p.Id == produto.Id);
         Assert.Equal(Quantidade.Criar(3), produtoNoBanco.QuantidadeEmEstoque);
         Assert.False(await contexto.MovimentacoesEstoque.AnyAsync(m => m.ProdutoId == produto.Id));
-        Assert.False(await contexto.OutboxEmails.AnyAsync(o => o.RestauranteId == restauranteId));
+        Assert.False(await contexto.OutboxMensagens.AnyAsync(o => o.Conteudo.Contains(restauranteId.ToString())));
     }
 
     private async Task<T> EnviarAsync<T>(IRequest<T> comando, Guid? restauranteId = null)

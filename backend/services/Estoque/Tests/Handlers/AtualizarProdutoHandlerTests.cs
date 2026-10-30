@@ -49,8 +49,8 @@ public class AtualizarProdutoHandlerTests
         Assert.Equal(categoriaOriginal.Id, produtoSalvo!.CategoriaId);
     }
 
-    private static AtualizarProdutoHandler CriarHandler(TestDbContext context) =>
-        new(new FakeProdutoRepository(context), new FakeCategoriaRepository(context), context);
+    private static AtualizarProdutoHandler CriarHandler(TestDbContext context, FakeOutboxMensagemRepository? outbox = null) =>
+        new(new FakeProdutoRepository(context), new FakeCategoriaRepository(context), context, outbox ?? new FakeOutboxMensagemRepository(), new FakeRelogio());
 
     private static async Task<(Produto Produto, Categoria Categoria)> CriarProdutoAsync(TestDbContext context)
     {

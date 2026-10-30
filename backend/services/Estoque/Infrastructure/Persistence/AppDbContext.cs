@@ -1,6 +1,7 @@
 using RestauranteEstoque.Core.Application.Abstractions;
 using Microsoft.EntityFrameworkCore;
 using RestauranteEstoque.Application.Abstractions.Services;
+using RestauranteEstoque.Core.Mensageria;
 using RestauranteEstoque.Domain.Entities;
 
 namespace RestauranteEstoque.Infrastructure.Persistence;
@@ -22,7 +23,8 @@ public class AppDbContext : DbContext, IApplicationDbContext
     public DbSet<MovimentacaoEstoque> MovimentacoesEstoque => Set<MovimentacaoEstoque>();
     public DbSet<Fornecedor> Fornecedores => Set<Fornecedor>();
 
-    public DbSet<OutboxEmail> OutboxEmails => Set<OutboxEmail>();
+    public DbSet<OutboxMensagem> OutboxMensagens => Set<OutboxMensagem>();
+    public DbSet<MensagemProcessada> MensagensProcessadas => Set<MensagemProcessada>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

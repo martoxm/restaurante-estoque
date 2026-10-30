@@ -26,6 +26,7 @@ O repositório está se preparando para virar microserviços:
 
 - `backend/services/Identidade` — usuários, roles e restaurantes; é a única API que gera o token JWT
 - `backend/services/Estoque` — produtos, categorias, fornecedores e movimentações; só valida o token
+- `backend/services/Vendas` — vendas e itens de venda (nome e preço copiados do produto); só valida o token e conversa com o Estoque pelo RabbitMQ
 - `backend/shared/Core` — código comum a todas as APIs: classe base `Entity`, Value Objects, validação, tratamento de erros, validação do JWT e CorrelationId
 - `frontend` — o app Next.js
 
@@ -41,8 +42,8 @@ Alguns detalhes:
 
 - **Validação** roda num pipeline behavior do MediatR, antes de qualquer Handler. Erros viram respostas `ProblemDetails` (400, 401, 404) num middleware único.
 - **Multi-tenant**: o `RestaurantId` vem de uma claim do JWT e é aplicado como Global Query Filter do EF Core em toda leitura. Testes de isolamento garantem que um restaurante não lê os dados de outro.
-- **Eventos de domínio + Outbox**: o `Produto` registra um `EstoqueFicouBaixoEvent`; um interceptor do EF publica o evento e o handler grava o aviso na tabela `OutboxEmails` na mesma transação; um `BackgroundService` envia o e-mail (SMTP com MailKit) em segundo plano, com nova tentativa se falhar.
-- **Banco**: um banco só, com um schema por API (`identidade` e `estoque`) e nenhuma FK de uma API para a outra. As tabelas de negócio são criadas por script SQL manual. Só as tabelas do Identity (`AspNet*`) usam EF Core Migration, no projeto da Identidade.
+- **Eventos de domínio + Outbox**: o `Produto` registra um `EstoqueFicouBaixoEvent`; um interceptor do EF publica o evento e o handler grava o aviso na tabela `OutboxMensagens` na mesma transação; um `BackgroundService` publica a mensagem numa fila do RabbitMQ e um consumidor manda o e-mail (SMTP com MailKit); o que falha vai para uma dead-letter queue.
+- **Banco**: um banco só, com um schema por API (`identidade`, `estoque` e `vendas`) e nenhuma FK de uma API para a outra. As tabelas de negócio são criadas por script SQL manual. Só as tabelas do Identity (`AspNet*`) usam EF Core Migration, no projeto da Identidade.
 - **Token compartilhado**: a Identidade assina o JWT (HS256) e o Estoque valida com a mesma chave, sem chamar a Identidade a cada requisição.
 
 O frontend fica em `frontend/src`, organizado por funcionalidade (`features/produtos`, `features/categorias`, `features/auth`, ...).
@@ -74,6 +75,14 @@ E termine com os scripts que dependem delas:
 8. `12-criar-tabela-outbox-emails.sql` — caixa de saída dos e-mails de aviso de estoque baixo
 9. `13-restauranteid-obrigatorio.sql` — torna `RestauranteId` obrigatório (`NOT NULL`) em produtos, categorias, fornecedores e movimentações; para sem alterar nada se ainda houver linha sem restaurante (rode o `10-vincular-dados-orfaos-restaurante-bk.sql` antes, se o banco tiver dados antigos)
 10. `14-separar-schemas-por-api.sql` — move as tabelas para os schemas `identidade` e `estoque` e tira as FKs entre as duas APIs
+11. `15-criar-tabela-refresh-tokens.sql` — guarda os refresh tokens (só o hash) da API de Identidade
+12. `16-criar-tabela-outbox-mensagens.sql` — troca a caixa de saída de e-mails por uma genérica, de mensagens para o RabbitMQ
+13. `17-criar-schema-vendas.sql` — cria o schema `vendas` com as tabelas `Vendas` e `ItensVenda` da API de Vendas
+14. `18-criar-tabela-outbox-vendas.sql` — caixa de saída da Vendas (o pedido de baixa de estoque)
+15. `19-criar-tabela-mensagens-processadas.sql` — controle de mensagens já processadas do Estoque
+16. `20-criar-tabela-mensagens-processadas-vendas.sql` — o mesmo controle, na Vendas
+17. `21-criar-catalogo-produtos-vendas.sql` — cópia local dos produtos na Vendas (nome e preço), já com os produtos que existem hoje
+18. `22-criar-indices-estoque.sql` — índices de `RestauranteId` e das FKs nas tabelas do Estoque
 
 ### 2. Configuração
 
@@ -89,9 +98,15 @@ dotnet user-secrets set "Email:Usuario" "seu.email@gmail.com" --project backend/
 dotnet user-secrets set "Email:Senha" "senha-de-app-de-16-letras" --project backend/services/Estoque/Api
 ```
 
-Sem isso a API funciona normalmente; o aviso só fica na fila (tabela `OutboxEmails`) e o log avisa que o SMTP não está configurado.
+Sem isso a API funciona normalmente; o log avisa que o SMTP não está configurado e a mensagem vai para a fila `email-queue.dlq`.
 
-> O envio está pausado por enquanto: os e-mails dos `Admin` passaram a morar na API de Identidade, e o Estoque ainda não sabe perguntar para ela. O aviso continua sendo gravado na fila e será enviado quando essa ligação existir.
+**RabbitMQ.** O aviso passa por uma fila do RabbitMQ. Com o Docker Desktop aberto, suba o container uma vez (ele volta sozinho nas próximas vezes):
+
+```bash
+docker run -d --name rabbitmq --restart unless-stopped -p 5672:5672 -p 15672:15672 rabbitmq:4-management
+```
+
+O painel fica em http://localhost:15672 (usuário `guest`, senha `guest`). Sem o RabbitMQ a API sobe do mesmo jeito: os avisos esperam no banco e saem quando ele ligar.
 
 ### 3. Backend
 
@@ -110,6 +125,12 @@ dotnet run --project backend/services/Identidade/Api --launch-profile https
 ```bash
 dotnet run --project backend/services/Estoque/Api --launch-profile https
 ```
+
+```bash
+dotnet run --project backend/services/Vendas/Api --launch-profile https
+```
+
+A API de Vendas sobe em `https://localhost:7012` (perfil `http`: `http://localhost:5266`). Ela lê o nome e o preço de uma cópia local dos produtos, que o Estoque mantém em dia pelo RabbitMQ. Por isso dá para registrar uma venda mesmo com o Estoque desligado: ela fica `Pendente` e é confirmada quando o Estoque voltar.
 
 A Identidade sobe em `https://localhost:7010` e o Estoque em `https://localhost:7008`, cada uma com o Swagger em `/swagger`. Login e cadastro ficam na Identidade; o token que ela devolve serve também no Estoque. Sem o `--launch-profile https`, o `dotnet run` usa o perfil `http` (Identidade em `http://localhost:5264`, Estoque em `http://localhost:5262`).
 

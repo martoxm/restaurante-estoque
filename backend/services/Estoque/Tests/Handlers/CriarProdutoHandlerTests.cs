@@ -1,3 +1,6 @@
+using System.Text.Json;
+using RestauranteEstoque.Core.Mensageria;
+using RestauranteEstoque.Core.Mensageria.Contratos;
 using RestauranteEstoque.Core.Application.Exceptions;
 using RestauranteEstoque.Application.UseCases.Produtos;
 using RestauranteEstoque.Domain.Entities;
@@ -56,11 +59,34 @@ public class CriarProdutoHandlerTests
         Assert.Empty(context.Produtos);
     }
 
-    private static CriarProdutoHandler CriarHandler(TestDbContext context) =>
+    [Fact]
+    public async Task Handle_ComDadosValidos_DeveAvisarOCatalogoPeloOutbox()
+    {
+        using var context = TestDbContextFactory.Create();
+        var categoria = DadosTeste.CriarCategoria();
+        context.Categorias.Add(categoria);
+        await context.SaveChangesAsync();
+        var outbox = new FakeOutboxMensagemRepository();
+        var handler = CriarHandler(context, outbox);
+
+        var produtoId = await handler.Handle(new CriarProdutoCommand("Arroz", null, 25.90m, categoria.Id), CancellationToken.None);
+
+        var linha = Assert.Single(outbox.Mensagens);
+        Assert.Equal(Filas.CatalogoProdutos, linha.Fila);
+        var mensagem = JsonSerializer.Deserialize<ProdutoCatalogoMensagem>(linha.Conteudo)!;
+        Assert.Equal(produtoId, mensagem.ProdutoId);
+        Assert.Equal(DadosTeste.RestauranteId, mensagem.RestauranteId);
+        Assert.Equal("Arroz", mensagem.Nome);
+        Assert.Equal(25.90m, mensagem.Preco);
+        Assert.False(mensagem.Excluido);
+    }
+
+    private static CriarProdutoHandler CriarHandler(TestDbContext context, FakeOutboxMensagemRepository? outbox = null) =>
         new(
             new FakeProdutoRepository(context),
             new FakeCategoriaRepository(context),
             context,
             new FakeUsuarioAtualService { RestauranteId = DadosTeste.RestauranteId },
-            new FakeRelogio());
+            new FakeRelogio(),
+            outbox ?? new FakeOutboxMensagemRepository());
 }

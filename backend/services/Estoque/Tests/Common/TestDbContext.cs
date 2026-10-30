@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using RestauranteEstoque.Application.Abstractions.Services;
 using RestauranteEstoque.Domain.Entities;
 using RestauranteEstoque.Core.Domain.ValueObjects;
+using RestauranteEstoque.Core.Mensageria;
 
 namespace RestauranteEstoque.Tests.Common;
 
@@ -20,6 +21,7 @@ public class TestDbContext : DbContext, IApplicationDbContext
     public DbSet<Produto> Produtos => Set<Produto>();
     public DbSet<MovimentacaoEstoque> MovimentacoesEstoque => Set<MovimentacaoEstoque>();
     public DbSet<Fornecedor> Fornecedores => Set<Fornecedor>();
+    public DbSet<MensagemProcessada> MensagensProcessadas => Set<MensagemProcessada>();
 
     private Guid? RestauranteIdAtual => _usuarioAtualService.RestauranteId;
 

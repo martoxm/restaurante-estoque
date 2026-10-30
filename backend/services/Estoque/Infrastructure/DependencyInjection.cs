@@ -1,6 +1,6 @@
+using RestauranteEstoque.Core.Mensageria;
 using RestauranteEstoque.Core.Seguranca;
 using RestauranteEstoque.Infrastructure.Integracoes.Identidade;
-using RestauranteEstoque.Core.Seguranca;
 using RestauranteEstoque.Core.Application.Abstractions;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -37,14 +37,19 @@ public static class DependencyInjection
         services.AddScoped<IMovimentacaoEstoqueRepository, MovimentacaoEstoqueRepository>();
 
         services.AddHttpContextAccessor();
-        services.AddScoped<IUsuarioAtualService, UsuarioAtualService>();
+        services.AddScoped<UsuarioAtualService>();
+        services.AddScoped<IUsuarioAtualService>(provider => provider.GetRequiredService<UsuarioAtualService>());
+        services.AddScoped<IDefinidorRestauranteAtual>(provider => provider.GetRequiredService<UsuarioAtualService>());
 
         services.AddSingleton(TimeProvider.System);
         services.AddSingleton<IRelogio, Relogio>();
 
-        services.AddScoped<IOutboxEmailRepository, OutboxEmailRepository>();
+        services.AddScoped<IOutboxMensagemRepository, OutboxMensagemRepository>();
+        services.AddScoped<IMensagemProcessadaRepository, MensagemProcessadaRepository>();
         services.Configure<EmailSettings>(configuration.GetSection(EmailSettings.SectionName));
         services.AddScoped<IEmailService, SmtpEmailService>();
+
+        services.AddMensageriaRabbitMq(configuration);
 
         services.Configure<IdentidadeSettings>(configuration.GetSection(IdentidadeSettings.SectionName));
         services.AddHttpClient<IIdentidadeClient, IdentidadeClient>(httpClient =>

@@ -10,6 +10,8 @@ using RestauranteEstoque.Infrastructure;
 
 var builder = WebApplication.CreateBuilder(args);
 
+builder.AddServiceDefaults();
+
 builder.Services.AddEndpointsApiExplorer();
 
 builder.Services.ConfigureHttpJsonOptions(options =>
@@ -38,7 +40,9 @@ builder.Services.AddSwaggerGen(options =>
 builder.Services.AddApplication();
 builder.Services.AddInfrastructure(builder.Configuration);
 
-builder.Services.AddHostedService<EnvioEmailOutboxWorker>();
+builder.Services.AddHostedService<PublicacaoOutboxWorker>();
+builder.Services.AddHostedService<EnvioEmailConsumidor>();
+builder.Services.AddHostedService<BaixaEstoqueConsumidor>();
 
 builder.Services.AddApiVersioning(options =>
 {
@@ -68,6 +72,8 @@ builder.Services.AddCors(options =>
 builder.Services.AddAutenticacaoJwt(builder.Configuration);
 
 var app = builder.Build();
+
+app.MapDefaultEndpoints();
 
 if (app.Environment.IsDevelopment())
 {

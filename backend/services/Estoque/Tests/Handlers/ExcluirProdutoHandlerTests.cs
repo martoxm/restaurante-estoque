@@ -1,3 +1,5 @@
+using System.Text.Json;
+using RestauranteEstoque.Core.Mensageria.Contratos;
 using Microsoft.EntityFrameworkCore;
 using RestauranteEstoque.Core.Application.Exceptions;
 using RestauranteEstoque.Application.UseCases.Produtos;
@@ -55,8 +57,22 @@ public class ExcluirProdutoHandlerTests
             handler.Handle(new ExcluirProdutoCommand(Guid.NewGuid()), CancellationToken.None));
     }
 
-    private static ExcluirProdutoHandler CriarHandler(TestDbContext context) =>
-        new(new FakeProdutoRepository(context), new FakeMovimentacaoEstoqueRepository(context), context);
+    [Fact]
+    public async Task Handle_ProdutoExcluido_DeveAvisarOCatalogoComExcluidoTrue()
+    {
+        using var context = TestDbContextFactory.Create();
+        var produto = await CriarProdutoAsync(context);
+        var outbox = new FakeOutboxMensagemRepository();
+
+        await CriarHandler(context, outbox).Handle(new ExcluirProdutoCommand(produto.Id), CancellationToken.None);
+
+        var mensagem = JsonSerializer.Deserialize<ProdutoCatalogoMensagem>(Assert.Single(outbox.Mensagens).Conteudo)!;
+        Assert.Equal(produto.Id, mensagem.ProdutoId);
+        Assert.True(mensagem.Excluido);
+    }
+
+    private static ExcluirProdutoHandler CriarHandler(TestDbContext context, FakeOutboxMensagemRepository? outbox = null) =>
+        new(new FakeProdutoRepository(context), new FakeMovimentacaoEstoqueRepository(context), context, outbox ?? new FakeOutboxMensagemRepository(), new FakeRelogio());
 
     private static async Task<Produto> CriarProdutoAsync(TestDbContext context)
     {

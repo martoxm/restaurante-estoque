@@ -17,6 +17,9 @@
   <Folder Name="/Infrastructure/">
     <Project Path="Infrastructure/RestauranteEstoque.Identidade.Infrastructure.csproj" />
   </Folder>
+  <Folder Name="/ServiceDefaults/">
+    <Project Path="../../shared/ServiceDefaults/RestauranteEstoque.ServiceDefaults.csproj" />
+  </Folder>
   <Folder Name="/Tests/">
     <Project Path="Tests/RestauranteEstoque.Identidade.Tests.csproj" />
   </Folder>

@@ -1,4 +1,7 @@
+using System.Text.Json;
 using RestauranteEstoque.Core.Application.Events;
+using RestauranteEstoque.Core.Mensageria;
+using RestauranteEstoque.Core.Mensageria.Contratos;
 using RestauranteEstoque.Application.UseCases.Produtos;
 using RestauranteEstoque.Domain.Events;
 using RestauranteEstoque.Tests.Common;
@@ -7,9 +10,9 @@ namespace RestauranteEstoque.Tests.Handlers;
 
 public class AvisarEstoqueBaixoHandlerTests
 {
-    private static (AvisarEstoqueBaixoHandler Handler, FakeOutboxEmailRepository Outbox, FakeRelogio Relogio) CriarHandler()
+    private static (AvisarEstoqueBaixoHandler Handler, FakeOutboxMensagemRepository Outbox, FakeRelogio Relogio) CriarHandler()
     {
-        var outbox = new FakeOutboxEmailRepository();
+        var outbox = new FakeOutboxMensagemRepository();
         var relogio = new FakeRelogio();
         var handler = new AvisarEstoqueBaixoHandler(outbox, relogio);
         return (handler, outbox, relogio);
@@ -26,12 +29,16 @@ public class AvisarEstoqueBaixoHandlerTests
 
         await handler.Handle(Notificacao("Arroz", restauranteId), CancellationToken.None);
 
-        var email = Assert.Single(outbox.Emails);
+        var linha = Assert.Single(outbox.Mensagens);
+        Assert.Equal(Filas.Email, linha.Fila);
+        Assert.Equal(nameof(EnviarEmailMensagem), linha.Tipo);
+        Assert.Equal(relogio.AgoraUtc, linha.CriadoEm);
+
+        var email = JsonSerializer.Deserialize<EnviarEmailMensagem>(linha.Conteudo)!;
         Assert.Equal(restauranteId, email.RestauranteId);
         Assert.Equal("Estoque baixo: Arroz", email.Assunto);
         Assert.Contains("<b>Arroz</b>", email.CorpoHtml);
         Assert.Contains("<b>7</b>", email.CorpoHtml);
-        Assert.Equal(relogio.AgoraUtc, email.CriadoEm);
     }
 
     [Fact]
@@ -41,7 +48,7 @@ public class AvisarEstoqueBaixoHandlerTests
 
         await handler.Handle(Notificacao("<a href=\"http://golpe\">clique</a>", Guid.NewGuid()), CancellationToken.None);
 
-        var corpo = Assert.Single(outbox.Emails).CorpoHtml;
+        var corpo = JsonSerializer.Deserialize<EnviarEmailMensagem>(Assert.Single(outbox.Mensagens).Conteudo)!.CorpoHtml;
         Assert.DoesNotContain("<a href", corpo);
         Assert.Contains("&lt;a href=", corpo);
     }

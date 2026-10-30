@@ -12,6 +12,8 @@ using RestauranteEstoque.Identidade.Infrastructure.Identity;
 
 var builder = WebApplication.CreateBuilder(args);
 
+builder.AddServiceDefaults();
+
 builder.Services.AddEndpointsApiExplorer();
 
 builder.Services.ConfigureHttpJsonOptions(options =>
@@ -70,6 +72,8 @@ builder.Services.AddAutenticacaoJwt(builder.Configuration);
 builder.Services.AddHostedService<LimpezaRefreshTokensWorker>();
 
 var app = builder.Build();
+
+app.MapDefaultEndpoints();
 
 using (var scope = app.Services.CreateScope())
 {

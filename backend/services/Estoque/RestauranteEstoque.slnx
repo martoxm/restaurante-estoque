@@ -39,6 +39,11 @@
       <Build Solution="Default|*" Project="false" />
     </Project>
   </Folder>
+  <Folder Name="/ServiceDefaults/">
+    <Project Path="../../shared/ServiceDefaults/RestauranteEstoque.ServiceDefaults.csproj">
+      <BuildType Solution="Default|*" Project="Debug" />
+    </Project>
+  </Folder>
   <Folder Name="/Tests/">
     <Project Path="Tests/RestauranteEstoque.Tests.csproj">
       <BuildType Solution="Default|*" Project="Release" />
