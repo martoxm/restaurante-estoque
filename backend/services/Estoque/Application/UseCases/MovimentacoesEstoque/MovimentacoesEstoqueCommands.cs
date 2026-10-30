@@ -15,3 +15,10 @@ public record BaixarEstoqueVendaCommand(
     Guid VendaId,
     Guid RestauranteId,
     IReadOnlyList<ItemBaixaEstoque> Itens) : IRequest;
+
+public record DevolverEstoqueVendaCommand(
+    Guid MensagemId,
+    Guid VendaId,
+    Guid RestauranteId,
+    IReadOnlyList<ItemBaixaEstoque> Itens,
+    string Motivo) : IRequest;

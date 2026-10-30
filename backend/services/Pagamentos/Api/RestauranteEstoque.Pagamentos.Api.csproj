@@ -1,0 +1,26 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <ItemGroup>
+    <ProjectReference Include="..\Application\RestauranteEstoque.Pagamentos.Application.csproj" />
+    <ProjectReference Include="..\Infrastructure\RestauranteEstoque.Pagamentos.Infrastructure.csproj" />
+    <ProjectReference Include="..\Contracts\RestauranteEstoque.Pagamentos.Contracts.csproj" />
+    <ProjectReference Include="..\..\..\shared\Core\RestauranteEstoque.Core.csproj" />
+    <ProjectReference Include="..\..\..\shared\ServiceDefaults\RestauranteEstoque.ServiceDefaults.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Asp.Versioning.Http" Version="10.2.3" />
+    <PackageReference Include="Asp.Versioning.Mvc.ApiExplorer" Version="10.2.1" />
+    <PackageReference Include="Swashbuckle.AspNetCore" Version="10.2.3" />
+  </ItemGroup>
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <!-- Mesmo UserSecretsId das outras APIs: todas leem a mesma
+         connection string (o Azure SQL) e a mesma chave do JWT do user-secrets. -->
+    <UserSecretsId>f5904ef8-bbd2-4b18-9739-9894f5062f18</UserSecretsId>
+  </PropertyGroup>
+
+</Project>

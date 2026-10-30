@@ -19,6 +19,14 @@
     <Project Path="services/Identidade/Infrastructure/RestauranteEstoque.Identidade.Infrastructure.csproj" />
     <Project Path="services/Identidade/Tests/RestauranteEstoque.Identidade.Tests.csproj" />
   </Folder>
+  <Folder Name="/services/Pagamentos/">
+    <Project Path="services/Pagamentos/Api/RestauranteEstoque.Pagamentos.Api.csproj" />
+    <Project Path="services/Pagamentos/Application/RestauranteEstoque.Pagamentos.Application.csproj" />
+    <Project Path="services/Pagamentos/Contracts/RestauranteEstoque.Pagamentos.Contracts.csproj" />
+    <Project Path="services/Pagamentos/Domain/RestauranteEstoque.Pagamentos.Domain.csproj" />
+    <Project Path="services/Pagamentos/Infrastructure/RestauranteEstoque.Pagamentos.Infrastructure.csproj" />
+    <Project Path="services/Pagamentos/Tests/RestauranteEstoque.Pagamentos.Tests.csproj" />
+  </Folder>
   <Folder Name="/services/Vendas/">
     <Project Path="services/Vendas/Api/RestauranteEstoque.Vendas.Api.csproj" />
     <Project Path="services/Vendas/Application/RestauranteEstoque.Vendas.Application.csproj" />

@@ -1,0 +1,18 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <!-- Igual ao Domain do Estoque (Etapa 45): os testes enxergam o que é "internal"
+       , igual ao Domain do Estoque e da Vendas. -->
+  <ItemGroup>
+    <InternalsVisibleTo Include="RestauranteEstoque.Pagamentos.Tests" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\shared\Core\RestauranteEstoque.Core.csproj" />
+  </ItemGroup>
+
+</Project>

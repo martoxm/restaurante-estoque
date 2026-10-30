@@ -1,6 +1,6 @@
 <Project Sdk="Aspire.AppHost.Sdk/13.6.4">
 
-  <!-- O AppHost do Aspire: é o projeto que você roda (F5) pra subir as três
+  <!-- O AppHost do Aspire: é o projeto que você roda (F5) pra subir as quatro
        APIs de uma vez e abrir o dashboard com os logs de todas juntas. Ele não
        vai pra produção; é só pra rodar no dia a dia. -->
   <PropertyGroup>
@@ -15,6 +15,7 @@
     <ProjectReference Include="..\services\Identidade\Api\RestauranteEstoque.Identidade.Api.csproj" />
     <ProjectReference Include="..\services\Estoque\Api\RestauranteEstoque.Api.csproj" />
     <ProjectReference Include="..\services\Vendas\Api\RestauranteEstoque.Vendas.Api.csproj" />
+    <ProjectReference Include="..\services\Pagamentos\Api\RestauranteEstoque.Pagamentos.Api.csproj" />
   </ItemGroup>
 
 </Project>

@@ -12,6 +12,8 @@ public class Venda : Entity
     public StatusVenda Status { get; private set; }
     public DateTime CriadoEm { get; private set; }
 
+    public string? TokenCartao { get; private set; }
+
     public IReadOnlyCollection<ItemVenda> Itens => _itens.AsReadOnly();
 
     public Dinheiro Total => Dinheiro.Criar(_itens.Sum(item => item.Subtotal.Valor));
@@ -20,10 +22,13 @@ public class Venda : Entity
     {
     }
 
-    public static Venda Criar(Guid restauranteId, DateTime criadoEm, IReadOnlyCollection<NovoItemVenda> itens)
+    public static Venda Criar(Guid restauranteId, DateTime criadoEm, IReadOnlyCollection<NovoItemVenda> itens, string tokenCartao)
     {
         if (restauranteId == Guid.Empty)
             throw new DomainException("A venda precisa pertencer a um restaurante.");
+
+        if (string.IsNullOrWhiteSpace(tokenCartao))
+            throw new DomainException("Informe o token do cartão para pagar a venda.");
 
         if (itens.Count == 0)
             throw new DomainException("A venda precisa ter pelo menos um item.");
@@ -35,7 +40,8 @@ public class Venda : Entity
         {
             RestauranteId = restauranteId,
             Status = StatusVenda.Pendente,
-            CriadoEm = criadoEm
+            CriadoEm = criadoEm,
+            TokenCartao = tokenCartao.Trim()
         };
 
         foreach (var item in itens)
@@ -44,22 +50,29 @@ public class Venda : Entity
         return venda;
     }
 
+
+    public void AguardarPagamento()
+    {
+        GarantirStatus(StatusVenda.Pendente);
+        Status = StatusVenda.AguardandoPagamento;
+    }
+
     public void Confirmar()
     {
-        GarantirQueEstaPendente();
+        GarantirStatus(StatusVenda.AguardandoPagamento);
         Status = StatusVenda.Confirmada;
     }
 
     public void Cancelar()
     {
-        GarantirQueEstaPendente();
+        GarantirStatus(StatusVenda.Pendente, StatusVenda.AguardandoPagamento);
         Status = StatusVenda.Cancelada;
     }
 
-    private void GarantirQueEstaPendente()
+    private void GarantirStatus(params StatusVenda[] permitidos)
     {
-        if (Status != StatusVenda.Pendente)
-            throw new DomainException($"Só uma venda pendente pode mudar de status (esta está {Status}).");
+        if (!permitidos.Contains(Status))
+            throw new DomainException($"A venda não pode mudar de status agora (está {Status}).");
     }
 }
 

@@ -24,7 +24,7 @@ public class VendaEndpointsModule : IEndpointModule
         group.MapPost("", CriarVenda)
             .WithName("CriarVenda")
             .WithSummary("Registra uma nova venda")
-            .WithDescription("Cria uma venda com status Pendente. Nome e preço de cada item vêm da API de Estoque, não do corpo da requisição. Retorna 404 se algum produto não existir.")
+            .WithDescription("Cria uma venda com status Pendente. Nome e preço de cada item vêm do catálogo local (não do corpo da requisição). Depois o Estoque baixa os itens (AguardandoPagamento) e a Pagamentos cobra pelo tokenCartao: aprovado vira Confirmada; sem estoque ou pagamento recusado vira Cancelada (com o estoque devolvido). Tokens de teste: tok_aprovado, tok_saldo_insuficiente, tok_fraude, tok_gateway_fora. Retorna 404 se algum produto não existir.")
             .Produces<VendaCriadaResponse>(StatusCodes.Status201Created)
             .Produces(StatusCodes.Status400BadRequest)
             .Produces(StatusCodes.Status404NotFound);

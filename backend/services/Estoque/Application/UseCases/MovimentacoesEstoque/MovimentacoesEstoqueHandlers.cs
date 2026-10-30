@@ -1,3 +1,4 @@
+using Microsoft.Extensions.Logging;
 using RestauranteEstoque.Core.Application.Abstractions;
 using MediatR;
 using RestauranteEstoque.Application.Abstractions.Repositories;
@@ -131,6 +132,65 @@ public class BaixarEstoqueVendaHandler : IRequestHandler<BaixarEstoqueVendaComma
         _outbox.Adicionar(OutboxMensagem.Criar(Filas.ResultadoBaixaEstoque, resultado, agora));
         _mensagensProcessadas.Adicionar(MensagemProcessada.Criar(request.MensagemId, Filas.BaixarEstoque, agora));
 
+        await _context.SaveChangesAsync(cancellationToken);
+    }
+}
+
+public class DevolverEstoqueVendaHandler : IRequestHandler<DevolverEstoqueVendaCommand>
+{
+    private readonly IProdutoRepository _produtoRepository;
+    private readonly IMovimentacaoEstoqueRepository _movimentacaoEstoqueRepository;
+    private readonly IMensagemProcessadaRepository _mensagensProcessadas;
+    private readonly IDefinidorRestauranteAtual _definidorRestaurante;
+    private readonly IApplicationDbContext _context;
+    private readonly IRelogio _relogio;
+    private readonly ILogger<DevolverEstoqueVendaHandler> _logger;
+
+    public DevolverEstoqueVendaHandler(
+        IProdutoRepository produtoRepository,
+        IMovimentacaoEstoqueRepository movimentacaoEstoqueRepository,
+        IMensagemProcessadaRepository mensagensProcessadas,
+        IDefinidorRestauranteAtual definidorRestaurante,
+        IApplicationDbContext context,
+        IRelogio relogio,
+        ILogger<DevolverEstoqueVendaHandler> logger)
+    {
+        _produtoRepository = produtoRepository;
+        _movimentacaoEstoqueRepository = movimentacaoEstoqueRepository;
+        _mensagensProcessadas = mensagensProcessadas;
+        _definidorRestaurante = definidorRestaurante;
+        _context = context;
+        _relogio = relogio;
+        _logger = logger;
+    }
+
+    public async Task Handle(DevolverEstoqueVendaCommand request, CancellationToken cancellationToken)
+    {
+        if (await _mensagensProcessadas.ExisteAsync(request.MensagemId, cancellationToken))
+            return;
+
+        _definidorRestaurante.Definir(request.RestauranteId);
+        var agora = _relogio.AgoraUtc;
+
+        foreach (var item in request.Itens)
+        {
+            var produto = await _produtoRepository.ObterPorIdAsync(item.ProdutoId, cancellationToken);
+
+            if (produto is null)
+            {
+                _logger.LogWarning("Devolução da venda {VendaId}: produto {ProdutoId} não existe mais.", request.VendaId, item.ProdutoId);
+                continue;
+            }
+
+            var movimentacao = MovimentadorEstoque.Movimentar(
+                produto, TipoMovimentacaoEstoque.Entrada, Quantidade.Criar(item.Quantidade), agora,
+                $"Estorno da venda {request.VendaId}: {request.Motivo}");
+
+            _produtoRepository.Atualizar(produto);
+            _movimentacaoEstoqueRepository.Adicionar(movimentacao);
+        }
+
+        _mensagensProcessadas.Adicionar(MensagemProcessada.Criar(request.MensagemId, Filas.DevolverEstoque, agora));
         await _context.SaveChangesAsync(cancellationToken);
     }
 }

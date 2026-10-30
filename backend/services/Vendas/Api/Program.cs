@@ -70,6 +70,7 @@ builder.Services.AddAutenticacaoJwt(builder.Configuration);
 builder.Services.AddHostedService<PublicacaoOutboxWorker>();
 builder.Services.AddHostedService<ResultadoBaixaEstoqueConsumidor>();
 builder.Services.AddHostedService<ProdutoCatalogoConsumidor>();
+builder.Services.AddHostedService<ResultadoPagamentoConsumidor>();
 
 var app = builder.Build();
 

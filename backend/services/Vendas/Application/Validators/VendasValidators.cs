@@ -10,6 +10,10 @@ public class CriarVendaCommandValidator : AbstractValidator<CriarVendaCommand>
         RuleFor(command => command.Itens)
             .NotEmpty().WithMessage("A venda precisa ter pelo menos um item.");
 
+        RuleFor(command => command.TokenCartao)
+            .NotEmpty().WithMessage("Informe o token do cartão.")
+            .MaximumLength(100).WithMessage("O token do cartão pode ter no máximo 100 caracteres.");
+
         RuleFor(command => command.Itens)
             .Must(itens => itens.Select(item => item.ProdutoId).Distinct().Count() == itens.Count)
             .WithMessage("Um produto não pode aparecer mais de uma vez na mesma venda.")

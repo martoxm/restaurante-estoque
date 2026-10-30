@@ -13,6 +13,8 @@ public static class TesteVendas
     public static readonly Guid RestauranteId = Guid.Parse("11111111-1111-1111-1111-111111111111");
     public static readonly DateTime Agora = new(2026, 1, 1, 12, 0, 0, DateTimeKind.Utc);
 
+    public const string Token = "tok_aprovado";
+
     public static AppDbContext CriarContexto(IUsuarioAtualService? usuarioAtual = null, string? nomeBanco = null)
     {
         var options = new DbContextOptionsBuilder<AppDbContext>()

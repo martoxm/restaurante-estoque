@@ -43,6 +43,7 @@ builder.Services.AddInfrastructure(builder.Configuration);
 builder.Services.AddHostedService<PublicacaoOutboxWorker>();
 builder.Services.AddHostedService<EnvioEmailConsumidor>();
 builder.Services.AddHostedService<BaixaEstoqueConsumidor>();
+builder.Services.AddHostedService<DevolucaoEstoqueConsumidor>();
 
 builder.Services.AddApiVersioning(options =>
 {

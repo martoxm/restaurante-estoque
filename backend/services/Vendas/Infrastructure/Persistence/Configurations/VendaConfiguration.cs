@@ -22,6 +22,9 @@ public class VendaConfiguration : IEntityTypeConfiguration<Venda>
         builder.Property(venda => venda.CriadoEm)
             .IsRequired();
 
+        builder.Property(venda => venda.TokenCartao)
+            .HasMaxLength(100);
+
         builder.Ignore(venda => venda.Total);
 
         builder.HasMany(venda => venda.Itens)

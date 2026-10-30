@@ -27,6 +27,7 @@ O repositório está se preparando para virar microserviços:
 - `backend/services/Identidade` — usuários, roles e restaurantes; é a única API que gera o token JWT
 - `backend/services/Estoque` — produtos, categorias, fornecedores e movimentações; só valida o token
 - `backend/services/Vendas` — vendas e itens de venda (nome e preço copiados do produto); só valida o token e conversa com o Estoque pelo RabbitMQ
+- `backend/services/Pagamentos` — cobrança das vendas num gateway de pagamento falso (só para testes, não mexe em dinheiro); recebe o pedido da Vendas pelo RabbitMQ e responde por lá
 - `backend/shared/Core` — código comum a todas as APIs: classe base `Entity`, Value Objects, validação, tratamento de erros, validação do JWT e CorrelationId
 - `frontend` — o app Next.js
 
@@ -43,7 +44,7 @@ Alguns detalhes:
 - **Validação** roda num pipeline behavior do MediatR, antes de qualquer Handler. Erros viram respostas `ProblemDetails` (400, 401, 404) num middleware único.
 - **Multi-tenant**: o `RestaurantId` vem de uma claim do JWT e é aplicado como Global Query Filter do EF Core em toda leitura. Testes de isolamento garantem que um restaurante não lê os dados de outro.
 - **Eventos de domínio + Outbox**: o `Produto` registra um `EstoqueFicouBaixoEvent`; um interceptor do EF publica o evento e o handler grava o aviso na tabela `OutboxMensagens` na mesma transação; um `BackgroundService` publica a mensagem numa fila do RabbitMQ e um consumidor manda o e-mail (SMTP com MailKit); o que falha vai para uma dead-letter queue.
-- **Banco**: um banco só, com um schema por API (`identidade`, `estoque` e `vendas`) e nenhuma FK de uma API para a outra. As tabelas de negócio são criadas por script SQL manual. Só as tabelas do Identity (`AspNet*`) usam EF Core Migration, no projeto da Identidade.
+- **Banco**: um banco só, com um schema por API (`identidade`, `estoque`, `vendas` e `pagamentos`) e nenhuma FK de uma API para a outra. As tabelas de negócio são criadas por script SQL manual. Só as tabelas do Identity (`AspNet*`) usam EF Core Migration, no projeto da Identidade.
 - **Token compartilhado**: a Identidade assina o JWT (HS256) e o Estoque valida com a mesma chave, sem chamar a Identidade a cada requisição.
 
 O frontend fica em `frontend/src`, organizado por funcionalidade (`features/produtos`, `features/categorias`, `features/auth`, ...).
@@ -83,6 +84,8 @@ E termine com os scripts que dependem delas:
 16. `20-criar-tabela-mensagens-processadas-vendas.sql` — o mesmo controle, na Vendas
 17. `21-criar-catalogo-produtos-vendas.sql` — cópia local dos produtos na Vendas (nome e preço), já com os produtos que existem hoje
 18. `22-criar-indices-estoque.sql` — índices de `RestauranteId` e das FKs nas tabelas do Estoque
+19. `23-criar-schema-pagamentos.sql` — cria o schema `pagamentos` com a tabela `Pagamentos` da API de Pagamentos
+20. `24-pagamento-na-saga-da-venda.sql` — liga o pagamento à venda: token do cartão na venda, contador de tentativas no pagamento e a caixa de saída da Pagamentos
 
 ### 2. Configuração
 
@@ -131,6 +134,12 @@ dotnet run --project backend/services/Vendas/Api --launch-profile https
 ```
 
 A API de Vendas sobe em `https://localhost:7012` (perfil `http`: `http://localhost:5266`). Ela lê o nome e o preço de uma cópia local dos produtos, que o Estoque mantém em dia pelo RabbitMQ. Por isso dá para registrar uma venda mesmo com o Estoque desligado: ela fica `Pendente` e é confirmada quando o Estoque voltar.
+
+```bash
+dotnet run --project backend/services/Pagamentos/Api --launch-profile https
+```
+
+A API de Pagamentos sobe em `https://localhost:7014` (perfil `http`: `http://localhost:5268`). O gateway é falso e não mexe em dinheiro. A cobrança nasce da própria venda: o `POST /api/v1/vendas` recebe um `tokenCartao` de teste (`tok_aprovado`, `tok_saldo_insuficiente`, `tok_fraude` ou `tok_gateway_fora`) no lugar do cartão. A venda passa por `Pendente` → `AguardandoPagamento` (estoque baixado) → `Confirmada`; se faltar estoque ou o pagamento for recusado, vira `Cancelada` e o estoque baixado é devolvido. O `GET /api/v1/pagamentos/venda/{vendaId}` mostra a cobrança de uma venda. O resultado chega como no mundo real: o gateway falso chama o webhook `POST /api/v1/webhooks/gateway-falso` com o corpo assinado (HMAC-SHA256 no cabeçalho `X-Assinatura`), e a API recusa com 401 qualquer aviso sem a assinatura certa. O segredo fica em `GatewayFalso:SegredoWebhook`.
 
 A Identidade sobe em `https://localhost:7010` e o Estoque em `https://localhost:7008`, cada uma com o Swagger em `/swagger`. Login e cadastro ficam na Identidade; o token que ela devolve serve também no Estoque. Sem o `--launch-profile https`, o `dotnet run` usa o perfil `http` (Identidade em `http://localhost:5264`, Estoque em `http://localhost:5262`).
 

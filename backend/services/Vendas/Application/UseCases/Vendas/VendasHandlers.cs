@@ -53,7 +53,7 @@ public class CriarVendaHandler : IRequestHandler<CriarVendaCommand, Guid>
             itens.Add(new NovoItemVenda(produto.Id, produto.Nome, produto.Preco, Quantidade.Criar(item.Quantidade)));
         }
 
-        var venda = Venda.Criar(restauranteId, _relogio.AgoraUtc, itens);
+        var venda = Venda.Criar(restauranteId, _relogio.AgoraUtc, itens, request.TokenCartao);
 
         _vendaRepository.Adicionar(venda);
 
@@ -114,6 +114,7 @@ public class ProcessarResultadoBaixaHandler : IRequestHandler<ProcessarResultado
 {
     private readonly IVendaRepository _vendaRepository;
     private readonly IMensagemProcessadaRepository _mensagensProcessadas;
+    private readonly IOutboxMensagemRepository _outbox;
     private readonly IDefinidorRestauranteAtual _definidorRestaurante;
     private readonly IApplicationDbContext _context;
     private readonly IRelogio _relogio;
@@ -122,6 +123,7 @@ public class ProcessarResultadoBaixaHandler : IRequestHandler<ProcessarResultado
     public ProcessarResultadoBaixaHandler(
         IVendaRepository vendaRepository,
         IMensagemProcessadaRepository mensagensProcessadas,
+        IOutboxMensagemRepository outbox,
         IDefinidorRestauranteAtual definidorRestaurante,
         IApplicationDbContext context,
         IRelogio relogio,
@@ -129,6 +131,7 @@ public class ProcessarResultadoBaixaHandler : IRequestHandler<ProcessarResultado
     {
         _vendaRepository = vendaRepository;
         _mensagensProcessadas = mensagensProcessadas;
+        _outbox = outbox;
         _definidorRestaurante = definidorRestaurante;
         _context = context;
         _relogio = relogio;
@@ -151,12 +154,22 @@ public class ProcessarResultadoBaixaHandler : IRequestHandler<ProcessarResultado
             _logger.LogWarning("Venda {VendaId} já está {Status}: resultado da baixa ignorado.", venda.Id, venda.Status);
         else
         {
-            if (resultado.Baixado)
-                venda.Confirmar();
-            else
+            if (!resultado.Baixado)
             {
                 venda.Cancelar();
                 _logger.LogInformation("Venda {VendaId} cancelada: {Motivo}", venda.Id, resultado.Motivo);
+            }
+            else if (venda.TokenCartao is null)
+            {
+                venda.Cancelar();
+                _outbox.Adicionar(OutboxMensagem.Criar(Filas.DevolverEstoque, VendaSaga.PedidoDevolucao(venda, "Venda sem token de pagamento."), _relogio.AgoraUtc));
+                _logger.LogWarning("Venda {VendaId} cancelada: não tem token de pagamento.", venda.Id);
+            }
+            else
+            {
+                venda.AguardarPagamento();
+                var pedido = new ProcessarPagamentoMensagem(venda.Id, venda.RestauranteId, venda.Total.Valor, venda.TokenCartao);
+                _outbox.Adicionar(OutboxMensagem.Criar(Filas.ProcessarPagamento, pedido, _relogio.AgoraUtc));
             }
 
             _vendaRepository.Atualizar(venda);
@@ -165,6 +178,77 @@ public class ProcessarResultadoBaixaHandler : IRequestHandler<ProcessarResultado
         _mensagensProcessadas.Adicionar(MensagemProcessada.Criar(request.MensagemId, Filas.ResultadoBaixaEstoque, _relogio.AgoraUtc));
         await _context.SaveChangesAsync(cancellationToken);
     }
+}
+
+public class ProcessarResultadoPagamentoHandler : IRequestHandler<ProcessarResultadoPagamentoCommand>
+{
+    private readonly IVendaRepository _vendaRepository;
+    private readonly IMensagemProcessadaRepository _mensagensProcessadas;
+    private readonly IOutboxMensagemRepository _outbox;
+    private readonly IDefinidorRestauranteAtual _definidorRestaurante;
+    private readonly IApplicationDbContext _context;
+    private readonly IRelogio _relogio;
+    private readonly ILogger<ProcessarResultadoPagamentoHandler> _logger;
+
+    public ProcessarResultadoPagamentoHandler(
+        IVendaRepository vendaRepository,
+        IMensagemProcessadaRepository mensagensProcessadas,
+        IOutboxMensagemRepository outbox,
+        IDefinidorRestauranteAtual definidorRestaurante,
+        IApplicationDbContext context,
+        IRelogio relogio,
+        ILogger<ProcessarResultadoPagamentoHandler> logger)
+    {
+        _vendaRepository = vendaRepository;
+        _mensagensProcessadas = mensagensProcessadas;
+        _outbox = outbox;
+        _definidorRestaurante = definidorRestaurante;
+        _context = context;
+        _relogio = relogio;
+        _logger = logger;
+    }
+
+    public async Task Handle(ProcessarResultadoPagamentoCommand request, CancellationToken cancellationToken)
+    {
+        if (await _mensagensProcessadas.ExisteAsync(request.MensagemId, cancellationToken))
+            return;
+
+        var resultado = request.Resultado;
+        _definidorRestaurante.Definir(resultado.RestauranteId);
+
+        var venda = await _vendaRepository.ObterPorIdAsync(resultado.VendaId, cancellationToken);
+
+        if (venda is null)
+            _logger.LogWarning("Resultado do pagamento chegou pra venda {VendaId}, que não foi encontrada.", resultado.VendaId);
+        else if (venda.Status != StatusVenda.AguardandoPagamento)
+            _logger.LogWarning("Venda {VendaId} já está {Status}: resultado do pagamento ignorado.", venda.Id, venda.Status);
+        else
+        {
+            if (resultado.Aprovado)
+                venda.Confirmar();
+            else
+            {
+                venda.Cancelar();
+                var motivo = resultado.Motivo ?? "Pagamento recusado.";
+                _outbox.Adicionar(OutboxMensagem.Criar(Filas.DevolverEstoque, VendaSaga.PedidoDevolucao(venda, motivo), _relogio.AgoraUtc));
+                _logger.LogInformation("Venda {VendaId} cancelada pelo pagamento: {Motivo}", venda.Id, motivo);
+            }
+
+            _vendaRepository.Atualizar(venda);
+        }
+
+        _mensagensProcessadas.Adicionar(MensagemProcessada.Criar(request.MensagemId, Filas.ResultadoPagamento, _relogio.AgoraUtc));
+        await _context.SaveChangesAsync(cancellationToken);
+    }
+}
+
+file static class VendaSaga
+{
+    public static DevolverEstoqueMensagem PedidoDevolucao(Venda venda, string motivo) => new(
+        venda.Id,
+        venda.RestauranteId,
+        venda.Itens.Select(item => new ItemBaixaEstoque(item.ProdutoId, item.Quantidade.Valor)).ToList(),
+        motivo);
 }
 
 file static class VendaMapeamentos

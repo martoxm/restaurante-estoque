@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging.Abstractions;
 using RestauranteEstoque.Core.Domain.ValueObjects;
+using RestauranteEstoque.Core.Mensageria;
 using RestauranteEstoque.Core.Mensageria.Contratos;
 using RestauranteEstoque.Vendas.Application.UseCases.Vendas;
 using RestauranteEstoque.Vendas.Domain.Entities;
@@ -17,7 +18,7 @@ public class ProcessarResultadoBaixaHandlerTests
         var nomeBanco = Guid.NewGuid().ToString();
         await using var context = TesteVendas.CriarContexto(nomeBanco: nomeBanco);
         var venda = Venda.Criar(TesteVendas.RestauranteId, TesteVendas.Agora,
-            [new NovoItemVenda(Guid.NewGuid(), "Coca-Cola", Dinheiro.Criar(5m), Quantidade.Criar(2))]);
+            [new NovoItemVenda(Guid.NewGuid(), "Coca-Cola", Dinheiro.Criar(5m), Quantidade.Criar(2))], TesteVendas.Token);
         context.Vendas.Add(venda);
         await context.SaveChangesAsync();
         return (nomeBanco, venda.Id);
@@ -30,6 +31,7 @@ public class ProcessarResultadoBaixaHandlerTests
         var handler = new ProcessarResultadoBaixaHandler(
             new VendaRepository(context),
             new MensagemProcessadaRepository(context),
+            new OutboxMensagemRepository(context),
             usuario,
             context,
             new FakeRelogio(),
@@ -44,13 +46,17 @@ public class ProcessarResultadoBaixaHandlerTests
     }
 
     [Fact]
-    public async Task Handle_Baixado_ConfirmaAVenda()
+    public async Task Handle_Baixado_FicaAguardandoPagamentoEPedeACobranca()
     {
         var (nomeBanco, vendaId) = await CriarVendaPendenteAsync();
 
         await ProcessarAsync(nomeBanco, Guid.NewGuid(), new(vendaId, TesteVendas.RestauranteId, true, null));
 
-        Assert.Equal(StatusVenda.Confirmada, await StatusAsync(nomeBanco, vendaId));
+        Assert.Equal(StatusVenda.AguardandoPagamento, await StatusAsync(nomeBanco, vendaId));
+        await using var context = TesteVendas.CriarContexto(nomeBanco: nomeBanco);
+        var pedido = await context.OutboxMensagens.SingleAsync();
+        Assert.Equal(Filas.ProcessarPagamento, pedido.Fila);
+        Assert.Contains("\"Valor\":10", pedido.Conteudo);
     }
 
     [Fact]
@@ -73,7 +79,7 @@ public class ProcessarResultadoBaixaHandlerTests
         await ProcessarAsync(nomeBanco, mensagemId, resultado);
         await ProcessarAsync(nomeBanco, mensagemId, resultado);
 
-        Assert.Equal(StatusVenda.Confirmada, await StatusAsync(nomeBanco, vendaId));
+        Assert.Equal(StatusVenda.AguardandoPagamento, await StatusAsync(nomeBanco, vendaId));
         await using var context = TesteVendas.CriarContexto(nomeBanco: nomeBanco);
         Assert.Equal(1, await context.MensagensProcessadas.CountAsync());
     }

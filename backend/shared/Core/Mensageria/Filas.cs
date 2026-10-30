@@ -12,6 +12,10 @@ public static class Filas
 
     public const string CatalogoProdutos = "catalogo-produtos-queue";
 
+    public const string ProcessarPagamento = "processar-pagamento-queue";
+    public const string ResultadoPagamento = "resultado-pagamento-queue";
+    public const string DevolverEstoque = "devolver-estoque-queue";
+
     public static string DeadLetter(string fila) => $"{fila}.dlq";
 
     public static async Task DeclararAsync(IChannel canal, string fila, CancellationToken cancellationToken = default)

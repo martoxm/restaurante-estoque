@@ -14,8 +14,8 @@ public class VendaIsolamentoTests
     private static async Task<(string NomeBanco, Venda VendaA, Venda VendaB)> CriarCenarioAsync()
     {
         var nomeBanco = Guid.NewGuid().ToString();
-        var vendaA = Venda.Criar(RestauranteA, TesteVendas.Agora, [new NovoItemVenda(Guid.NewGuid(), "X-Burger", Dinheiro.Criar(20m), Quantidade.Criar(1))]);
-        var vendaB = Venda.Criar(RestauranteB, TesteVendas.Agora, [new NovoItemVenda(Guid.NewGuid(), "Big Mac", Dinheiro.Criar(25m), Quantidade.Criar(1))]);
+        var vendaA = Venda.Criar(RestauranteA, TesteVendas.Agora, [new NovoItemVenda(Guid.NewGuid(), "X-Burger", Dinheiro.Criar(20m), Quantidade.Criar(1))], TesteVendas.Token);
+        var vendaB = Venda.Criar(RestauranteB, TesteVendas.Agora, [new NovoItemVenda(Guid.NewGuid(), "Big Mac", Dinheiro.Criar(25m), Quantidade.Criar(1))], TesteVendas.Token);
 
         await using var context = TesteVendas.CriarContexto(nomeBanco: nomeBanco);
         context.Vendas.AddRange(vendaA, vendaB);

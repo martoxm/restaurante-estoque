@@ -24,7 +24,7 @@ public class CriarVendaHandlerTests
         await using (var context = TesteVendas.CriarContexto(nomeBanco: nomeBanco))
         {
             var handler = new CriarVendaHandler(new VendaRepository(context), new OutboxMensagemRepository(context), new ProdutoCatalogoRepository(context), context, new FakeUsuarioAtualService { RestauranteId = TesteVendas.RestauranteId }, new FakeRelogio());
-            await handler.Handle(new CriarVendaCommand([new ItemVendaRequest(coca.Id, 3)]), CancellationToken.None);
+            await handler.Handle(new CriarVendaCommand([new ItemVendaRequest(coca.Id, 3)], TesteVendas.Token), CancellationToken.None);
         }
 
         await using var leitura = TesteVendas.CriarContexto(nomeBanco: nomeBanco);
@@ -49,7 +49,7 @@ public class CriarVendaHandlerTests
         await using (var context = TesteVendas.CriarContexto(nomeBanco: nomeBanco))
         {
             var handler = new CriarVendaHandler(new VendaRepository(context), new OutboxMensagemRepository(context), new ProdutoCatalogoRepository(context), context, new FakeUsuarioAtualService { RestauranteId = TesteVendas.RestauranteId }, new FakeRelogio());
-            vendaId = await handler.Handle(new CriarVendaCommand([new ItemVendaRequest(coca.Id, 3)]), CancellationToken.None);
+            vendaId = await handler.Handle(new CriarVendaCommand([new ItemVendaRequest(coca.Id, 3)], TesteVendas.Token), CancellationToken.None);
         }
 
         await using var leitura = TesteVendas.CriarContexto(nomeBanco: nomeBanco);
@@ -73,7 +73,7 @@ public class CriarVendaHandlerTests
         var handler = new CriarVendaHandler(new VendaRepository(context), new OutboxMensagemRepository(context), new ProdutoCatalogoRepository(context), context, new FakeUsuarioAtualService { RestauranteId = TesteVendas.RestauranteId }, new FakeRelogio());
 
         await Assert.ThrowsAsync<NaoEncontradoException>(() =>
-            handler.Handle(new CriarVendaCommand([new ItemVendaRequest(Guid.NewGuid(), 1)]), CancellationToken.None));
+            handler.Handle(new CriarVendaCommand([new ItemVendaRequest(Guid.NewGuid(), 1)], TesteVendas.Token), CancellationToken.None));
     }
 
     [Fact]
@@ -83,7 +83,7 @@ public class CriarVendaHandlerTests
         var handler = new CriarVendaHandler(new VendaRepository(context), new OutboxMensagemRepository(context), new ProdutoCatalogoRepository(context), context, new FakeUsuarioAtualService(), new FakeRelogio());
 
         await Assert.ThrowsAsync<SessaoInvalidaException>(() =>
-            handler.Handle(new CriarVendaCommand([new ItemVendaRequest(Guid.NewGuid(), 1)]), CancellationToken.None));
+            handler.Handle(new CriarVendaCommand([new ItemVendaRequest(Guid.NewGuid(), 1)], TesteVendas.Token), CancellationToken.None));
     }
 
     [Fact]
@@ -94,7 +94,7 @@ public class CriarVendaHandlerTests
         var handler = new CriarVendaHandler(new VendaRepository(context), new OutboxMensagemRepository(context), new ProdutoCatalogoRepository(context), context, new FakeUsuarioAtualService { RestauranteId = TesteVendas.RestauranteId }, new FakeRelogio());
 
         await Assert.ThrowsAsync<NaoEncontradoException>(() =>
-            handler.Handle(new CriarVendaCommand([new ItemVendaRequest(produto.Id, 1)]), CancellationToken.None));
+            handler.Handle(new CriarVendaCommand([new ItemVendaRequest(produto.Id, 1)], TesteVendas.Token), CancellationToken.None));
     }
 
     [Fact]
@@ -105,6 +105,6 @@ public class CriarVendaHandlerTests
         var handler = new CriarVendaHandler(new VendaRepository(context), new OutboxMensagemRepository(context), new ProdutoCatalogoRepository(context), context, new FakeUsuarioAtualService { RestauranteId = TesteVendas.RestauranteId }, new FakeRelogio());
 
         await Assert.ThrowsAsync<NaoEncontradoException>(() =>
-            handler.Handle(new CriarVendaCommand([new ItemVendaRequest(produto.Id, 1)]), CancellationToken.None));
+            handler.Handle(new CriarVendaCommand([new ItemVendaRequest(produto.Id, 1)], TesteVendas.Token), CancellationToken.None));
     }
 }
